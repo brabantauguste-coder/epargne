@@ -1,626 +1,349 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="dark" data-accent="violet">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mon Épargne — Dashboard Live</title>
+<title>Epargne.live</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<style>
-:root{--bg:#0a0a0f;--bg2:#111118;--bg3:#1a1a24;--bg4:#22222f;--bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.13);--tx:#f0f0f5;--tx2:#8888a0;--tx3:#55556a;--ac:#7c6fff;--tl:#5ddfb8;--am:#ffd166;--co:#ff7c5d;--pk:#a78bfa;--gn:#4ade80;--rd:#f87171}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--tx);font-family:'DM Mono',monospace;font-size:13px;min-height:100vh}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid var(--bd);position:sticky;top:0;background:rgba(10,10,15,0.96);backdrop-filter:blur(12px);z-index:100;flex-wrap:wrap;gap:10px}
-.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;letter-spacing:-0.5px}
-.logo span{color:var(--ac)}
-.tabs{display:flex;gap:4px;flex-wrap:wrap}
-.tab{padding:6px 14px;border-radius:7px;border:none;background:transparent;color:var(--tx2);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all .2s}
-.tab:hover{color:var(--tx);background:var(--bg3)}
-.tab.active{background:var(--bg3);color:var(--tx);border:1px solid var(--bd2)}
-.status{display:flex;align-items:center;gap:8px}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--tx3);transition:background .3s}
-.dot.ok{background:var(--gn);animation:pulse 2s infinite}
-.dot.loading{background:var(--am)}
-.dot.err{background:var(--rd)}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.lbl{font-size:11px;color:var(--tx2)}
-.rbtn{background:var(--bg3);border:1px solid var(--bd2);color:var(--tx2);border-radius:7px;padding:5px 12px;font-family:'DM Mono',monospace;font-size:11px;cursor:pointer}
-.rbtn:hover{color:var(--tx);border-color:var(--ac)}
-.loadbar{height:2px;background:linear-gradient(90deg,var(--ac),var(--tl),var(--ac));background-size:200%;animation:lb 1.5s linear infinite;position:fixed;top:0;left:0;right:0;z-index:999;display:none}
-.loadbar.on{display:block}
-@keyframes lb{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.page{display:none;padding:24px 28px 48px;max-width:1400px;margin:0 auto}
-.page.active{display:block}
-.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
-.card{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:18px 20px}
-.card:hover{border-color:var(--bd2)}
-.ctitle{font-family:'Syne',sans-serif;font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
-.mval{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;letter-spacing:-1px;line-height:1;margin-bottom:4px}
-.msub{color:var(--tx2);font-size:11px}
-.stitle{font-family:'Syne',sans-serif;font-size:19px;font-weight:700;margin-bottom:18px;letter-spacing:-.5px}
-.stitle span{color:var(--ac)}
-.up{color:var(--gn)}.down{color:var(--rd)}.neutral{color:var(--tx2)}
-.badge{display:inline-block;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:500}
-.bg{background:rgba(74,222,128,.12);color:var(--gn)}
-.br{background:rgba(248,113,113,.12);color:var(--rd)}
-.ba{background:rgba(255,209,102,.12);color:var(--am)}
-.bp{background:rgba(124,111,255,.12);color:var(--ac)}
-.bt{background:rgba(93,223,184,.12);color:var(--tl)}
-.bx{background:rgba(136,136,160,.12);color:var(--tx2)}
-table{width:100%;border-collapse:collapse}
-th{text-align:left;color:var(--tx3);font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;padding:0 8px 10px;border-bottom:1px solid var(--bd)}
-td{padding:10px 8px;border-bottom:1px solid var(--bd);font-size:12px;vertical-align:middle}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:var(--bg3)}
-.cw{position:relative;width:100%}
-.geo-row{margin-bottom:14px}
-.geo-row .top{display:flex;justify-content:space-between;margin-bottom:4px;font-size:12px}
-.geo-track{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden}
-.geo-fill{height:100%;border-radius:3px}
-.trow{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.tlabel{width:150px;font-size:12px;flex-shrink:0}
-.tbars{flex:1}
-.ba1{height:7px;border-radius:3px;margin-bottom:3px}
-.ba2{height:3px;border-radius:2px;opacity:.35}
-.tvals{width:110px;text-align:right;font-size:11px;color:var(--tx2);flex-shrink:0}
-.acard{background:var(--bg3);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;margin-bottom:10px}
-.acard.h{border-left:3px solid var(--gn)}
-.acard.m{border-left:3px solid var(--am)}
-.acard.l{border-left:3px solid var(--tx3)}
-.ahead{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
-.atitle{font-family:'Syne',sans-serif;font-size:13px;font-weight:600}
-.abody{color:var(--tx2);font-size:12px;line-height:1.7}
-.stacked{height:10px;border-radius:5px;overflow:hidden;display:flex;margin:12px 0}
-.seg{height:100%;transition:flex .8s}
-.leg{display:flex;flex-wrap:wrap;gap:10px}
-.li{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2)}
-.ld{width:8px;height:8px;border-radius:2px;flex-shrink:0}
-.ep{background:var(--bg3);border:1px solid var(--bd2);border-radius:12px;padding:16px 20px;margin-top:14px}
-.ep h3{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;margin-bottom:12px;color:var(--tl)}
-.egrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.ef label{display:block;font-size:10px;color:var(--tx3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
-.ef input{width:100%;background:var(--bg4);border:1px solid var(--bd2);border-radius:7px;color:var(--tx);font-family:'DM Mono',monospace;font-size:12px;padding:7px 10px;outline:none;transition:border-color .2s}
-.ef input:focus{border-color:var(--ac)}
-.sbtn{margin-top:12px;background:var(--ac);border:none;color:#fff;border-radius:7px;padding:8px 18px;font-family:'DM Mono',monospace;font-size:12px;cursor:pointer}
-.sbtn:hover{opacity:.85}
-#map{width:100%;height:300px;position:relative;background:var(--bg3);border-radius:10px;overflow:hidden;margin-top:8px}
-.bubble{position:absolute;transform:translate(-50%,-50%);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform .2s}
-.bubble:hover{transform:translate(-50%,-50%) scale(1.1)}
-.blbl{font-family:'Syne',sans-serif;font-weight:700;text-align:center;line-height:1.3}
-.note{color:var(--tx2);font-size:12px;line-height:1.6;margin-bottom:16px}
-.info-box{padding:10px;background:var(--bg3);border-radius:8px;color:var(--tx2);font-size:11px;line-height:1.6;margin-top:10px}
-@media(max-width:900px){.g4,.g5{grid-template-columns:repeat(2,1fr)}.g3,.g2{grid-template-columns:1fr}.page{padding:14px 14px 40px}.topbar{padding:12px 14px}.egrid{grid-template-columns:repeat(2,1fr)}}
-</style>
 </head>
 <body>
+
 <div class="loadbar" id="lb"></div>
+
 <div class="topbar">
-  <div class="logo">épargne<span>.</span>live</div>
+  <div class="logo">epargne<em>.</em>live</div>
   <div class="tabs">
-    <button class="tab active" onclick="nav('p1',this)">Vue d'ensemble</button>
-    <button class="tab" onclick="nav('p2',this)">Répartition</button>
-    <button class="tab" onclick="nav('p3',this)">Géographie</button>
-    <button class="tab" onclick="nav('p4',this)">Positions</button>
-    <button class="tab" onclick="nav('p5',this)">Conseils</button>
-    <button class="tab" onclick="nav('p6',this)">✏️ Mise à jour</button>
+    <button class="tab active" onclick="nav('p1',this)">Accueil</button>
+    <button class="tab" onclick="nav('p2',this)">Portefeuille</button>
+    <button class="tab" onclick="nav('p3',this)">Investir</button>
+    <button class="tab" onclick="nav('p4',this)">Parametres</button>
   </div>
-  <div class="status">
+  <div class="topbar-r">
     <div class="dot loading" id="dot"></div>
     <div class="lbl" id="lbl">Chargement...</div>
-    <button class="rbtn" onclick="fetchAll()">↻ Actualiser</button>
+    <button class="rbtn" onclick="fetchAll()">Actualiser</button>
   </div>
 </div>
 
-<!-- ═══ PAGE 1 : VUE D'ENSEMBLE ═══ -->
+<!-- ══ PAGE 1 : ACCUEIL ══ -->
 <div id="p1" class="page active">
-  <div class="stitle">Vue d'<span>ensemble</span></div>
-  <div class="g5" style="margin-bottom:14px">
-    <div class="card"><div class="ctitle">Patrimoine total</div><div class="mval" id="k-total">—</div><div class="msub" id="k-gain">...</div></div>
-    <div class="card"><div class="ctitle">PEA (ETF live)</div><div class="mval" id="k-pea">—</div><div class="msub" id="k-pea-p">...</div></div>
-    <div class="card"><div class="ctitle">Splint Invest</div><div class="mval" id="k-splint">671,92 €</div><div class="msub" id="k-splint-p"><span class="up">+3,40%</span> — manuel</div></div>
-    <div class="card"><div class="ctitle">Crypto (live)</div><div class="mval" id="k-crypto">—</div><div class="msub" id="k-crypto-p">...</div></div>
-    <div class="card"><div class="ctitle">Dernière MàJ</div><div class="mval" style="font-size:16px;padding-top:6px" id="k-time">—</div><div class="msub">Auto toutes les 5min</div></div>
+  <div class="quote-wrap">
+    <div class="quote-accent"></div>
+    <div class="quote-text">"Nobody is coming<br>to save you."</div>
+    <div class="quote-author">— David Goggins</div>
   </div>
-  <div class="card" style="margin-bottom:14px">
-    <div class="ctitle">Répartition du patrimoine</div>
-    <div class="stacked" id="stacked"></div>
-    <div class="leg" id="leg"></div>
+  <div class="g5" style="margin-bottom:16px">
+    <div class="card"><div class="ctitle">Patrimoine total</div><div class="mval" id="k-total">...</div><div class="msub" id="k-gain">...</div></div>
+    <div class="card"><div class="ctitle">PEA live</div><div class="mval" id="k-pea">...</div><div class="msub" id="k-pea-p">...</div></div>
+    <div class="card"><div class="ctitle">Splint Invest</div><div class="mval" id="k-splint">...</div><div class="msub" id="k-splint-p">...</div></div>
+    <div class="card"><div class="ctitle">Crypto live</div><div class="mval" id="k-crypto">...</div><div class="msub" id="k-crypto-p">...</div></div>
+    <div class="card"><div class="ctitle">Derniere MaJ</div><div class="mval" style="font-size:15px;padding-top:6px" id="k-time">...</div><div class="msub">Auto 5 min</div></div>
   </div>
-  <div class="g2">
-    <div class="card"><div class="ctitle">Par compte</div><div class="cw" style="height:210px"><canvas id="c-donut"></canvas></div></div>
-    <div class="card"><div class="ctitle">Crypto — valeur vs investi</div><div class="cw" style="height:210px"><canvas id="c-crypto"></canvas></div></div>
+  <div class="g2" style="margin-bottom:16px">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="score-card">
+        <div class="score-icon">🎯</div>
+        <div class="score-info">
+          <div class="score-title">Score de diversification</div>
+          <div class="score-val" id="div-score">...</div>
+          <div class="prog-track"><div class="prog-fill" id="div-bar" style="background:var(--ac);width:0%"></div></div>
+          <div style="font-size:10px;color:var(--tx3);margin-top:4px" id="div-detail">...</div>
+        </div>
+      </div>
+      <div class="score-card">
+        <div class="score-icon">🏆</div>
+        <div class="score-info">
+          <div class="score-title">Objectif <span id="goal-lbl">2000</span> EUR</div>
+          <div class="score-val" id="goal-val">...</div>
+          <div class="prog-track"><div class="prog-fill" id="goal-bar" style="background:var(--gn);width:0%"></div></div>
+          <div style="font-size:10px;color:var(--tx3);margin-top:4px" id="goal-detail">...</div>
+        </div>
+      </div>
+      <div class="streak">
+        <div class="streak-num" id="streak-num">2</div>
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--tx)">mois consecutifs</div>
+          <div style="font-size:10px;color:var(--tx2)" id="streak-sub">Dernier versement : 10 mars 2026</div>
+        </div>
+        <div style="margin-left:auto;font-size:22px">🔥</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="card">
+        <div class="ctitle">Resume de la semaine</div>
+        <div id="week-summary"></div>
+        <div class="ibox" id="next-milestone" style="margin-top:8px">...</div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Repartition du patrimoine</div>
+        <div style="height:8px;border-radius:4px;overflow:hidden;display:flex;margin:4px 0 10px" id="stacked"></div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px" id="stacked-leg"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ctitle">Badges debloques</div>
+    <div class="bdg-grid" id="badge-home"></div>
   </div>
 </div>
 
-<!-- ═══ PAGE 2 : RÉPARTITION ═══ -->
+<!-- ══ PAGE 2 : PORTEFEUILLE ══ -->
 <div id="p2" class="page">
-  <div class="stitle">Répartition & <span>objectifs</span></div>
-  <div class="g2" style="margin-bottom:14px">
-    <div class="card">
-      <div class="ctitle">Objectifs géographiques PEA</div>
-      <div id="target-bars" style="margin-top:8px"></div>
-      <div class="info-box">⚠️ PEA concentré à 67% US. Priorité : renforcer MSCI World et Émergents à chaque versement.</div>
+  <div class="stitle">Mon <em>portefeuille</em></div>
+  <div class="stabs">
+    <button class="stab active" onclick="sub('s-pos',this,'p2')">Positions</button>
+    <button class="stab" onclick="sub('s-geo',this,'p2')">Geographie</button>
+    <button class="stab" onclick="sub('s-risk',this,'p2')">Risque</button>
+    <button class="stab" onclick="sub('s-fiscal',this,'p2')">Fiscal</button>
+  </div>
+
+  <div id="s-pos" class="subpage active">
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div><div class="ctitle">PEA — Trade Republic</div>
+          <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700"><span id="pea-v">...</span> <span style="font-size:12px" id="pea-p">...</span></div></div>
+        <span class="badge bp">Verse : 302,66 EUR</span>
+      </div>
+      <div class="scroll-x"><table>
+        <thead><tr><th>ETF</th><th>Parts</th><th>Px achat</th><th>Px actuel</th><th>Valeur</th><th>Gain</th><th>Perf.</th></tr></thead>
+        <tbody id="pea-rows"><tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:16px">Chargement...</td></tr></tbody>
+      </table></div>
+      <div style="font-size:10px;color:var(--tx3);text-align:right;margin-top:6px" id="lu-pea"></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div style="margin-bottom:12px"><div class="ctitle">Compte-titres</div>
+          <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700" id="ct-v">...</div></div>
+        <table><thead><tr><th>Position</th><th>Fraction</th><th>Px actuel</th><th>Valeur</th><th>Perf.</th></tr></thead>
+        <tbody id="ct-rows"></tbody></table>
+      </div>
+      <div class="card">
+        <div style="margin-bottom:12px"><div class="ctitle">Crypto — Trade Republic</div>
+          <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700"><span id="cry-v">...</span> <span style="font-size:12px" id="cry-p">...</span></div></div>
+        <table><thead><tr><th>Crypto</th><th>Qte</th><th>Px achat</th><th>Px actuel</th><th>Gain</th><th>Perf.</th></tr></thead>
+        <tbody id="cry-rows"></tbody></table>
+        <div style="font-size:10px;color:var(--tx3);text-align:right;margin-top:6px" id="lu-cry"></div>
+      </div>
+    </div>
+    <div class="g2" style="margin-top:14px">
+      <div class="card">
+        <div style="margin-bottom:12px"><div class="ctitle">Private Equity — Apollo</div>
+          <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700"><span id="pe-v">...</span> <span style="font-size:12px" id="pe-p">...</span></div></div>
+        <table><thead><tr><th>Fonds</th><th>Investi</th><th>Valeur</th><th>Perf.</th><th>Frais</th></tr></thead>
+        <tbody><tr><td>Apollo Private Equity</td><td>15,00 EUR</td><td id="pe-v2">...</td><td id="pe-badge">...</td><td style="color:var(--am)">2,20%+12,5%</td></tr></tbody></table>
+        <div style="color:var(--tx3);font-size:11px;margin-top:6px">Liquidite non garantie — mise a jour manuelle</div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div><div class="ctitle">Splint Invest</div>
+            <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700"><span id="spl-v">...</span> <span style="font-size:12px" id="spl-p">...</span></div></div>
+          <span class="badge bt">11 positions</span>
+        </div>
+        <table><thead><tr><th>Actif</th><th>Cat.</th><th>Valeur</th><th>Perf.</th></tr></thead>
+        <tbody id="spl-rows"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div id="s-geo" class="subpage">
+    <div class="card" style="margin-bottom:16px">
+      <div class="ctitle">Carte d'exposition geographique</div>
+      <div id="world-map"></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="ctitle">Exposition actuelle</div><div id="geo-bars" style="margin-top:8px"></div></div>
+      <div class="card"><div class="ctitle">Radar — actuel vs objectifs</div><div class="cw" style="height:250px"><canvas id="c-radar"></canvas></div></div>
+    </div>
+  </div>
+
+  <div id="s-risk" class="subpage">
+    <div class="g2" style="margin-bottom:14px">
+      <div class="card">
+        <div class="ctitle">Risque estime</div>
+        <div class="risk-track">
+          <div class="risk-seg" style="flex:3;background:var(--gn);opacity:.5"></div>
+          <div class="risk-seg" style="flex:4;background:var(--am);opacity:.5"></div>
+          <div class="risk-seg" style="flex:3;background:var(--rd);opacity:.5"></div>
+          <div class="risk-needle" id="risk-needle" style="left:55%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--tx3)"><span>Faible</span><span>Modere</span><span>Eleve</span></div>
+        <div style="margin-top:14px;font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--ac)" id="risk-label">Modere</div>
+        <div style="font-size:12px;color:var(--tx2);margin-top:4px" id="risk-desc">Bon equilibre pour un horizon 5+ ans.</div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Correlation entre actifs PEA</div>
+        <div id="corr-matrix" style="margin-top:8px"></div>
+        <div class="ibox">Nasdaq et S&P 500 tres correles (0.95) — redondant. MSCI World offre une meilleure diversification.</div>
+      </div>
     </div>
     <div class="card">
-      <div class="ctitle">Frais annuels par position</div>
-      <table><thead><tr><th>Position</th><th>TER</th><th>Niveau</th></tr></thead><tbody>
-        <tr><td>Nasdaq 100 PEA</td><td>~0,23%</td><td><span class="badge bg">Bas</span></td></tr>
-        <tr><td>S&P 500 Amundi</td><td>0,12%</td><td><span class="badge bg">Très bas</span></td></tr>
-        <tr><td>MSCI EM Asia</td><td>0,30%</td><td><span class="badge bt">Correct</span></td></tr>
-        <tr><td>MSCI EM Global</td><td>0,30%</td><td><span class="badge bt">Correct</span></td></tr>
-        <tr><td>MSCI World</td><td>0,20%</td><td><span class="badge bg">Bas</span></td></tr>
-        <tr><td>Stoxx Europe 600</td><td>0,19%</td><td><span class="badge bg">Bas</span></td></tr>
-        <tr><td>STOXX Banks</td><td>0,51%</td><td><span class="badge ba">Moyen</span></td></tr>
-        <tr><td>Europe Defense</td><td>0,18%</td><td><span class="badge bg">Bas</span></td></tr>
-        <tr><td>Apollo PE</td><td>2,20%+12,5%</td><td><span class="badge br">Élevé</span></td></tr>
-        <tr><td>Splint Invest</td><td>~1,5–2%/an</td><td><span class="badge ba">Moyen</span></td></tr>
-      </tbody></table>
+      <div class="ctitle">Meilleur moment pour investir</div>
+      <div class="advice h" style="margin-top:8px">
+        <div class="advice-head"><div class="advice-title">Le DCA bat le market timing</div><span class="badge bg">Strategie validee</span></div>
+        <div class="advice-body">Des etudes sur 20 ans montrent qu'investir regulierement surpasse le market timing dans 87% des cas. Avec des revenus variables, investis des que tu as de l'argent disponible — ton horizon 5+ ans est ideal pour cette strategie.</div>
+      </div>
     </div>
+  </div>
+
+  <div id="s-fiscal" class="subpage">
+    <div class="ibox" style="margin-bottom:16px">⚠️ Estimations fiscales 2026. Consulte un conseiller fiscal pour ta situation personnelle.</div>
+    <div id="fiscal-content"></div>
   </div>
 </div>
 
-<!-- ═══ PAGE 3 : GÉOGRAPHIE ═══ -->
+<!-- ══ PAGE 3 : INVESTIR ══ -->
 <div id="p3" class="page">
-  <div class="stitle">Répartition <span>géographique</span></div>
-  <div class="note">Calculée en pondérant chaque ETF par sa composition officielle. Applicable au PEA + Compte-titres.</div>
-  <div class="card" style="margin-bottom:14px"><div class="ctitle">Carte d'exposition</div><div id="map"></div></div>
-  <div class="g2">
+  <div class="stitle">Investir & <em>projeter</em></div>
+  <div class="stabs">
+    <button class="stab active" onclick="sub('s-sim',this,'p3')">Simulateur</button>
+    <button class="stab" onclick="sub('s-proj',this,'p3')">Projection</button>
+    <button class="stab" onclick="sub('s-hist',this,'p3')">Historique</button>
+    <button class="stab" onclick="sub('s-journal',this,'p3')">Journal</button>
+    <button class="stab" onclick="sub('s-maj',this,'p3')">Mise a jour</button>
+  </div>
+
+  <div id="s-sim" class="subpage active">
+    <div class="g2">
+      <div class="card">
+        <div class="ctitle">Simulateur de versement</div>
+        <div style="margin-bottom:14px">
+          <div style="font-size:12px;color:var(--tx2);margin-bottom:6px">Montant a investir (EUR)</div>
+          <div style="display:flex;gap:8px">
+            <input class="inp" type="number" id="sim-amount" value="50" min="1" step="1" style="width:130px">
+            <button class="btn" onclick="runSim()">Simuler</button>
+          </div>
+        </div>
+        <div id="sim-result"><div style="font-size:11px;color:var(--tx3)">Entre un montant et clique Simuler.</div></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Ecart par rapport aux objectifs</div>
+        <div id="gap-bars" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="s-proj" class="subpage">
+    <div class="card" style="margin-bottom:14px">
+      <div class="ctitle">Projection avec versements reguliers</div>
+      <div class="g2" style="margin-bottom:16px">
+        <div>
+          <div class="sl-row"><div class="sl-lbl">Versement mensuel</div><input type="range" id="sl-monthly" min="0" max="500" value="50" step="10" oninput="updateProj()"><div class="sl-val" id="sl-mv">50 EUR/mois</div></div>
+          <div class="sl-row"><div class="sl-lbl">Rendement annuel</div><input type="range" id="sl-rate" min="4" max="15" value="10" step="0.5" oninput="updateProj()"><div class="sl-val" id="sl-rv">10%</div></div>
+          <div class="sl-row"><div class="sl-lbl">Horizon (annees)</div><input type="range" id="sl-years" min="1" max="30" value="5" step="1" oninput="updateProj()"><div class="sl-val" id="sl-yv">5 ans</div></div>
+        </div>
+        <div class="g3">
+          <div class="card" style="padding:14px;text-align:center"><div class="ctitle">Capital final</div><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--ac)" id="proj-final">...</div></div>
+          <div class="card" style="padding:14px;text-align:center"><div class="ctitle">Total verse</div><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700" id="proj-invested">...</div></div>
+          <div class="card" style="padding:14px;text-align:center"><div class="ctitle">Interets generes</div><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--gn)" id="proj-interest">...</div></div>
+        </div>
+      </div>
+      <div class="cw" style="height:220px"><canvas id="c-proj"></canvas></div>
+    </div>
+    <div class="card"><div class="ctitle">Comparaison multi-scenarios (5 ans)</div><div class="cw" style="height:180px"><canvas id="c-scen"></canvas></div></div>
+  </div>
+
+  <div id="s-hist" class="subpage">
+    <div class="card" style="margin-bottom:14px">
+      <div class="ctitle">Ajouter un versement</div>
+      <div class="g4" style="margin-bottom:12px">
+        <div><div class="field-lbl">Date</div><input class="inp" type="date" id="h-date"></div>
+        <div><div class="field-lbl">Montant (EUR)</div><input class="inp" type="number" id="h-amount" placeholder="50"></div>
+        <div><div class="field-lbl">ETF / Compte</div>
+          <select class="inp" id="h-etf">
+            <option>PEA Nasdaq 100</option><option>MSCI Emerging Asia</option><option>PEA S&P 500</option>
+            <option>MSCI EM Global</option><option>MSCI World PEA</option><option>Stoxx Europe 600</option>
+            <option>EURO STOXX Banks</option><option>Europe Defense</option><option>Splint Invest</option>
+            <option>Apollo PE</option><option>Bitcoin</option><option>Solana</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:flex-end"><button class="btn" style="width:100%" onclick="addV()">+ Ajouter</button></div>
+      </div>
+    </div>
     <div class="card">
-      <div class="ctitle">Exposition actuelle</div>
-      <div id="geo-bars" style="margin-top:8px"></div>
+      <div class="ctitle">Historique des versements</div>
+      <div class="cw" style="height:150px;margin-bottom:14px"><canvas id="c-hist"></canvas></div>
+      <table><thead><tr><th>Date</th><th>ETF / Compte</th><th>Montant</th><th></th></tr></thead>
+      <tbody id="hist-rows"><tr><td colspan="4" style="text-align:center;color:var(--tx3);padding:16px">Aucun versement</td></tr></tbody></table>
     </div>
-    <div class="card"><div class="ctitle">Radar — actuel vs objectifs</div><div class="cw" style="height:250px"><canvas id="c-radar"></canvas></div></div>
+  </div>
+
+  <div id="s-journal" class="subpage">
+    <div class="card" style="margin-bottom:14px">
+      <div class="ctitle">Nouvelle entree</div>
+      <div class="g4" style="margin-bottom:10px">
+        <div><div class="field-lbl">Date</div><input class="inp" type="date" id="j-date"></div>
+        <div><div class="field-lbl">Position</div><input class="inp" type="text" id="j-etf" placeholder="ex: MSCI World"></div>
+        <div><div class="field-lbl">Type</div>
+          <select class="inp" id="j-type"><option>Achat</option><option>Vente</option><option>Reflexion</option><option>Objectif</option></select>
+        </div>
+        <div style="display:flex;align-items:flex-end"><button class="btn" style="width:100%" onclick="addJ()">+ Enregistrer</button></div>
+      </div>
+      <div><div class="field-lbl">Note / Raison</div><textarea class="inp" id="j-note" rows="2" placeholder="Pourquoi cette decision ?" style="resize:none"></textarea></div>
+    </div>
+    <div class="card"><div class="ctitle">Journal de decisions</div><div id="journal-list"><div style="text-align:center;color:var(--tx3);padding:20px;font-size:12px">Aucune entree</div></div></div>
+  </div>
+
+  <div id="s-maj" class="subpage">
+    <div class="card" style="margin-bottom:14px">
+      <div style="color:var(--ac);font-family:'Syne',sans-serif;font-weight:600;font-size:14px;margin-bottom:14px">💼 Splint Invest</div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px" id="splint-form"></div>
+      <button class="btn" onclick="saveSplint()" id="spl-btn">Enregistrer Splint</button>
+    </div>
+    <div class="card">
+      <div style="color:var(--am);font-family:'Syne',sans-serif;font-weight:600;font-size:14px;margin-bottom:14px">📊 Private Equity Apollo</div>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px">
+        <div><div class="field-lbl">Valeur actuelle (EUR)</div><input class="inp" type="number" id="pe-input" step="0.01" value="15.29"></div>
+      </div>
+      <button class="btn" onclick="savePE()">Enregistrer PE</button>
+    </div>
+    <div class="ibox" style="margin-top:14px">💡 ETF et crypto se mettent a jour automatiquement via les APIs. Splint et PE necessitent une mise a jour manuelle.</div>
   </div>
 </div>
 
-<!-- ═══ PAGE 4 : POSITIONS ═══ -->
+<!-- ══ PAGE 4 : PARAMETRES ══ -->
 <div id="p4" class="page">
-  <div class="stitle">Toutes les <span>positions</span></div>
-
-  <div class="card" style="margin-bottom:14px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <div><div class="ctitle">PEA — Trade Republic</div><div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700"><span id="pea-v">—</span> <span style="font-size:12px" id="pea-p">...</span></div></div>
-      <span class="badge bp">Versé : 302,66 €</span>
+  <div class="stitle">Parametres & <em>personnalisation</em></div>
+  <div class="g2">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="card">
+        <div class="ctitle">Theme couleur</div>
+        <div class="swatches">
+          <div class="swatch sel" style="background:#7c6fff" onclick="setAccent('violet',this)"></div>
+          <div class="swatch" style="background:#5ddfb8" onclick="setAccent('teal',this)"></div>
+          <div class="swatch" style="background:#ffd166" onclick="setAccent('amber',this)"></div>
+          <div class="swatch" style="background:#ff7c5d" onclick="setAccent('coral',this)"></div>
+          <div class="swatch" style="background:#a78bfa" onclick="setAccent('pink',this)"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Affichage</div>
+        <div class="toggle-row"><span>Mode sombre</span><div class="toggle on" id="tgl-dark" onclick="toggleDark()"><div class="toggle-dot"></div></div></div>
+        <div class="toggle-row"><span>Confettis aux paliers</span><div class="toggle on" id="tgl-conf" onclick="togPref('confetti','tgl-conf')"><div class="toggle-dot"></div></div></div>
+        <div class="toggle-row"><span>Animations</span><div class="toggle on" id="tgl-anim" onclick="togPref('anim','tgl-anim')"><div class="toggle-dot"></div></div></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Objectif de patrimoine (EUR)</div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <input class="inp" type="number" id="goal-input" value="2000" step="100">
+          <button class="btn" onclick="setGoal()">Definir</button>
+        </div>
+        <div style="font-size:11px;color:var(--tx2);margin-top:8px">Prochain palier confettis : <span id="next-cf" style="color:var(--ac)">...</span></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Export PDF</div>
+        <button class="btn-ghost" onclick="window.print()">Imprimer / Exporter en PDF</button>
+        <div style="font-size:11px;color:var(--tx3)">Genere un rapport complet de ton portefeuille.</div>
+      </div>
     </div>
-    <table><thead><tr><th>ETF</th><th>Parts</th><th>Px achat</th><th>Px actuel</th><th>Valeur</th><th>Gain/Perte</th><th>Perf.</th></tr></thead>
-    <tbody id="pea-rows"><tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:16px">Chargement...</td></tr></tbody></table>
-    <div style="font-size:10px;color:var(--tx3);text-align:right;margin-top:6px" id="lu-pea">—</div>
-  </div>
-
-  <div class="card" style="margin-bottom:14px">
-    <div style="margin-bottom:12px"><div class="ctitle">Compte-titres — Trade Republic</div><div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700" id="ct-v">—</div></div>
-    <table><thead><tr><th>Position</th><th>Fraction</th><th>Px actuel</th><th>Valeur</th><th>Perf.</th></tr></thead>
-    <tbody id="ct-rows"><tr><td colspan="5" style="text-align:center;color:var(--tx3);padding:12px">Chargement...</td></tr></tbody></table>
-  </div>
-
-  <div class="card" style="margin-bottom:14px">
-    <div style="margin-bottom:12px"><div class="ctitle">Private Equity — Apollo (Trade Republic)</div>
-      <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700"><span id="pe-v">15,29 €</span> <span class="up" style="font-size:12px" id="pe-p">+1,92%</span></div>
+    <div class="card">
+      <div class="ctitle">Collection de badges</div>
+      <div class="bdg-grid" id="badge-full"></div>
     </div>
-    <table><thead><tr><th>Fonds</th><th>Investi</th><th>Valeur</th><th>Perf.</th><th>Frais</th><th>Liquidité</th></tr></thead>
-    <tbody><tr><td>Apollo Private Equity</td><td>15,00 €</td><td id="pe-v2">15,29 €</td><td id="pe-badge"><span class="badge bg">+1,92%</span></td><td style="color:var(--am)">2,20%+12,5%</td><td><span class="badge ba">Mensuelle*</span></td></tr></tbody></table>
-    <div style="color:var(--tx3);font-size:11px;margin-top:6px">* Liquidité non garantie — valeur mise à jour manuellement</div>
-  </div>
-
-  <div class="card" style="margin-bottom:14px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <div><div class="ctitle">Splint Invest</div><div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700"><span id="spl-v">671,92 €</span> <span class="up" style="font-size:12px" id="spl-p">+3,40%</span></div></div>
-      <span class="badge bt">11 positions · 3 catégories</span>
-    </div>
-    <table><thead><tr><th>Actif</th><th>Catégorie</th><th>Valeur</th><th>Perf.</th></tr></thead>
-    <tbody id="spl-rows"></tbody></table>
-  </div>
-
-  <div class="card">
-    <div style="margin-bottom:12px"><div class="ctitle">Wallet Crypto — Trade Republic</div>
-      <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700"><span id="cry-v">—</span> <span style="font-size:12px" id="cry-p">...</span></div>
-    </div>
-    <table><thead><tr><th>Crypto</th><th>Quantité</th><th>Px achat</th><th>Px actuel (live)</th><th>Valeur</th><th>Gain/Perte</th><th>Perf.</th></tr></thead>
-    <tbody id="cry-rows"><tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:12px">Chargement CoinGecko...</td></tr></tbody></table>
-    <div style="font-size:10px;color:var(--tx3);text-align:right;margin-top:6px" id="lu-cry">—</div>
   </div>
 </div>
 
-<!-- ═══ PAGE 5 : CONSEILS ═══ -->
-<div id="p5" class="page">
-  <div class="stitle">Conseils & <span>stratégie</span></div>
-  <div class="note">Horizon 5+ ans, objectif 8–12%/an, revenus variables, PEA Trade Republic uniquement. ⚠️ Pas un conseil financier.</div>
-  <div class="g2" style="margin-bottom:14px">
-    <div>
-      <div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:600;color:var(--gn);margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em">🟢 Priorité haute</div>
-      <div class="acard h"><div class="ahead"><div class="atitle">Renforcer MSCI World (FR001400U5Q4)</div><span class="badge bg">Achat prioritaire</span></div><div class="abody">Ta position la plus sous-pondérée (9% vs cible 25%). Le MSCI World diversifie sur 1 500 entreprises mondiales à 0,20% de frais. Dirige tous tes prochains versements ici en priorité absolue.</div></div>
-      <div class="acard h"><div class="ahead"><div class="atitle">Consolider les deux S&P 500</div><span class="badge ba">Rééquilibrage</span></div><div class="abody">Tu as deux ETF S&P 500 redondants (Amundi + iShares Swap). Le MSCI World couvre déjà ~70% US. Ne renforce plus ces lignes — redirige vers MSCI World.</div></div>
-      <div class="acard h"><div class="ahead"><div class="atitle">Augmenter les Marchés Émergents</div><span class="badge bg">Achat</span></div><div class="abody">17% vs cible 20%. L'Inde offre une croissance structurelle forte sur 5–10 ans. Renforce MSCI EM Global (FR0013412020) pour diversifier hors Asie.</div></div>
-    </div>
-    <div>
-      <div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:600;color:var(--am);margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em">🟡 Priorité moyenne</div>
-      <div class="acard m"><div class="ahead"><div class="atitle">Banques EU — surveiller</div><span class="badge br" id="banks-b">-8,61%</span></div><div class="abody">Seule position en perte du PEA. La baisse des taux EU pèse sur les marges. À 5 ans le secteur peut rebondir — mais c'est un pari sectoriel concentré.</div></div>
-      <div class="acard m"><div class="ahead"><div class="atitle">Défense Europe — bon timing</div><span class="badge bg">+5,0%</span></div><div class="abody">Contexte géopolitique très favorable (réarmement EU, OTAN). TER 0,18% excellent. Continue à renforcer modestement — cible 8% du PEA.</div></div>
-      <div class="acard m"><div class="ahead"><div class="atitle">Crypto : ne pas renforcer</div><span class="badge br" id="cry-adv">-25%</span></div><div class="abody">BTC et SOL en forte perte. À 5 ans, BTC garde un potentiel de rebond mais ne renforce pas avant stabilisation de la tendance.</div></div>
-      <div class="acard l"><div class="ahead"><div class="atitle">Splint — capitaliser les parrainages</div><span class="badge bt">Long terme</span></div><div class="abody">Réinvestis tes revenus de parrainage dans le PEA (avantage fiscal). Splint peut rester à ~40% du patrimoine pour la diversification en actifs réels.</div></div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="ctitle">Simulation intérêts composés — 5 ans</div>
-    <div class="note" style="margin-bottom:14px" id="compound-note">Capital actuel — sans versement supplémentaire</div>
-    <div class="cw" style="height:190px"><canvas id="c-compound"></canvas></div>
-  </div>
-</div>
-
-<!-- ═══ PAGE 6 : MISE À JOUR ═══ -->
-<div id="p6" class="page">
-  <div class="stitle">Mise à jour <span>manuelle</span></div>
-  <div class="note">ETF et crypto se mettent à jour automatiquement. Pour Splint et PE, utilise ce panneau après avoir consulté l'app.</div>
-  <div class="ep">
-    <h3>💼 Splint Invest — valeurs actuelles</h3>
-    <div class="egrid" id="splint-form"></div>
-    <button class="sbtn" onclick="saveSplint()" id="spl-btn">Enregistrer Splint</button>
-  </div>
-  <div class="ep">
-    <h3 style="color:var(--am)">📊 Private Equity Apollo</h3>
-    <div class="egrid">
-      <div class="ef"><label>Valeur actuelle (€)</label><input type="number" id="pe-input" step="0.01" value="15.29"></div>
-    </div>
-    <button class="sbtn" onclick="savePE()">Enregistrer PE</button>
-  </div>
-  <div style="margin-top:16px;padding:14px;background:var(--bg3);border-radius:10px;color:var(--tx2);font-size:12px;line-height:1.8">
-    <div style="font-family:'Syne',sans-serif;font-weight:600;color:var(--tx);margin-bottom:6px">💡 Comment utiliser</div>
-    1. Ouvre Splint Invest → Table de Bord → note les valeurs<br>
-    2. Entre-les ici → clique "Enregistrer" → données mémorisées dans le navigateur<br>
-    3. ETF & crypto : bouton ↻ Actualiser en haut ou attendre 5min<br>
-    4. Pour modifier le portefeuille (nouvelles positions), envoie un message à Claude
-  </div>
-</div>
-
-<script>
-// ═══ DONNÉES ═══
-var P = {
-  pea:[
-    {n:'PEA Nasdaq 100 EUR',tk:'PUST.PA',sh:1,bp:85.14,cp:85.30},
-    {n:'MSCI Emerging Asia ESG',tk:'PAASI.PA',sh:2,bp:29.92,cp:33.03},
-    {n:'PEA S&P 500 EUR (Acc)',tk:'PE500.PA',sh:1,bp:50.04,cp:50.51},
-    {n:'PEA MSCI Emerging Markets ESG',tk:'PAEEM.PA',sh:1,bp:28.40,cp:30.83},
-    {n:'PEA Monde MSCI World EUR',tk:'WPEA.PA',sh:5,bp:5.427,cp:5.43},
-    {n:'Stoxx Europe 600 EUR',tk:'ETZ.PA',sh:1,bp:18.33,cp:19.48},
-    {n:'EURO STOXX Banks 30-15',tk:'EXV1.DE',sh:1,bp:17.05,cp:15.58},
-    {n:'Bloomberg Europe Defense',tk:'EDEF.PA',sh:1,bp:11.21,cp:11.77},
-    {n:'S&P 500 Swap PEA EUR',tk:'SPUS.PA',sh:1,bp:5.52,cp:5.63}
-  ],
-  ct:[{n:'PEA Nasdaq 100 EUR',tk:'PUST.PA',sh:0.05391,bp:85.14,cp:85.30}],
-  cry:[
-    {n:'Solana',id:'solana',sym:'SOL',q:0.1137,bp:111.90,cp:82.34},
-    {n:'Bitcoin',id:'bitcoin',sym:'BTC',q:0.0001174,bp:84937.38,cp:64687.50}
-  ],
-  spl:{
-    total:671.92,invested:650,
-    items:[
-      {k:'ronaldo',l:'Ronaldo 2021 Immaculate 1/1 PSA 7',cat:'Collectibles',v:101.06,inv:100},
-      {k:'pokemon_neo',l:'Pokémon Neo Discovery 1st Ed.',cat:'Collectibles',v:100.00,inv:100},
-      {k:'zidane',l:'Zidane 2024 FIFA Kaboom 1/1 PSA 8',cat:'Collectibles',v:56.23,inv:50},
-      {k:'pokemon_tu',l:'Pokémon S&M Team Up Case P.2',cat:'Collectibles',v:54.80,inv:50},
-      {k:'yaoming',l:'Yao Ming 2005 UD Mirror Auto 1/2',cat:'Collectibles',v:51.23,inv:50},
-      {k:'manning',l:'Peyton Manning Prizm Gold PSA 9',cat:'Collectibles',v:50.00,inv:50},
-      {k:'daley',l:'Antony Daley, Herefrom',cat:'Art',v:53.66,inv:50},
-      {k:'botero',l:'Fernando Botero, Flautista 2023',cat:'Art',v:53.49,inv:50},
-      {k:'kahlo',l:'Frida Kahlo, Corporeal field 1946',cat:'Art',v:50.00,inv:50},
-      {k:'watt',l:'Amanda Watt, California Dreaming',cat:'Art',v:50.00,inv:50},
-      {k:'hermes',l:'Hermès Kelly 28 Gris Pantin',cat:'Sacs à main',v:51.45,inv:50}
-    ]
-  },
-  pe:{total:15.29,invested:15.00}
-};
-
-// Load saved
-try{var ss=localStorage.getItem('spl');if(ss)P.spl=JSON.parse(ss);}catch(e){}
-try{var sp=localStorage.getItem('pe');if(sp)P.pe=JSON.parse(sp);}catch(e){}
-
-// ═══ UTILS ═══
-function f(n){return n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';}
-function fp(n){return(n>=0?'+':'')+n.toFixed(2)+'%';}
-function prf(cur,buy){return(cur-buy)/buy*100;}
-function pbadge(p){return'<span class="badge '+(p>=0?'bg':'br')+'">'+fp(p)+'</span>';}
-function set(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
-function html(id,v){var e=document.getElementById(id);if(e)e.innerHTML=v;}
-
-// ═══ CALCULATIONS ═══
-function calcPEA(){return P.pea.reduce(function(a,p){return{v:a.v+p.sh*p.cp,i:a.i+p.sh*p.bp};},{v:0,i:0});}
-function calcCT(){return P.ct.reduce(function(a,p){return{v:a.v+p.sh*p.cp,i:a.i+p.sh*p.bp};},{v:0,i:0});}
-function calcCry(){return P.cry.reduce(function(a,c){return{v:a.v+c.q*c.cp,i:a.i+c.q*c.bp};},{v:0,i:0});}
-function calcTotal(){var pea=calcPEA(),ct=calcCT(),cry=calcCry();return{v:pea.v+ct.v+P.spl.total+P.pe.total+cry.v,i:pea.i+ct.i+P.spl.invested+P.pe.invested+cry.i};}
-
-// ═══ FETCH ═══
-async function fetchCrypto(){
-  try{
-    var ids=P.cry.map(function(c){return c.id;}).join(',');
-    var r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids='+ids+'&vs_currencies=eur',{signal:AbortSignal.timeout(8000)});
-    if(!r.ok)throw new Error();
-    var d=await r.json();
-    P.cry.forEach(function(c){if(d[c.id]&&d[c.id].eur)c.cp=d[c.id].eur;});
-    return true;
-  }catch(e){return false;}
-}
-
-async function fetchETF(tk){
-  try{
-    var url='https://query1.finance.yahoo.com/v8/finance/chart/'+tk+'?interval=1d&range=1d';
-    var proxy='https://api.allorigins.win/get?url='+encodeURIComponent(url);
-    var r=await fetch(proxy,{signal:AbortSignal.timeout(10000)});
-    if(!r.ok)throw new Error();
-    var o=await r.json();
-    var inner=JSON.parse(o.contents);
-    var price=inner&&inner.chart&&inner.chart.result&&inner.chart.result[0]&&inner.chart.result[0].meta&&inner.chart.result[0].meta.regularMarketPrice;
-    if(!price)throw new Error();
-    return price;
-  }catch(e){return null;}
-}
-
-async function fetchAll(){
-  document.getElementById('lb').classList.add('on');
-  setDot('loading','Actualisation...');
-  var cok=await fetchCrypto();
-  var tickers=[...new Set([...P.pea.map(function(p){return p.tk;}),...P.ct.map(function(p){return p.tk;})])];
-  var count=0;
-  await Promise.all(tickers.map(async function(tk){
-    var pr=await fetchETF(tk);
-    if(pr){
-      P.pea.filter(function(p){return p.tk===tk;}).forEach(function(p){p.cp=pr;});
-      P.ct.filter(function(p){return p.tk===tk;}).forEach(function(p){p.cp=pr;});
-      count++;
-    }
-  }));
-  var now=new Date();
-  var t=now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-  var parts=[];
-  if(count>0)parts.push(count+' ETF live');else parts.push('ETF: 17/03/26');
-  if(cok)parts.push('crypto live');else parts.push('crypto: sauvegardé');
-  setDot(cok||count>0?'ok':'err',parts.join(' · ')+' · '+t);
-  document.getElementById('lb').classList.remove('on');
-  set('k-time',t);
-  document.querySelectorAll('[id^="lu-"]').forEach(function(e){e.textContent='Màj : '+t;});
-  updateAll();
-  drawCharts();
-}
-
-function setDot(state,msg){
-  var d=document.getElementById('dot');
-  d.className='dot '+state;
-  set('lbl',msg);
-}
-
-// ═══ RENDER ═══
-function updateAll(){
-  var pea=calcPEA(),ct=calcCT(),cry=calcCry(),tot=calcTotal();
-  var tg=tot.v-tot.i,tp=prf(tot.v,tot.i);
-  var pp=prf(pea.v,pea.i),cp=prf(cry.v,cry.i);
-
-  set('k-total',f(tot.v));
-  html('k-gain','<span class="'+(tg>=0?'up':'down')+'">'+(tg>=0?'+':'')+f(tg)+' ('+fp(tp)+')</span>');
-  set('k-pea',f(pea.v));
-  html('k-pea-p','<span class="'+(pp>=0?'up':'down')+'">'+fp(pp)+'</span>');
-  set('k-splint',f(P.spl.total));
-  html('k-splint-p','<span class="'+(prf(P.spl.total,P.spl.invested)>=0?'up':'down')+'">'+fp(prf(P.spl.total,P.spl.invested))+'</span> — manuel');
-  set('k-crypto',f(cry.v));
-  html('k-crypto-p','<span class="'+(cp>=0?'up':'down')+'">'+fp(cp)+'</span>');
-
-  // Stacked bar
-  var sdata=[
-    {v:pea.v,c:'#7c6fff',l:'PEA'},
-    {v:ct.v,c:'#a78bfa',l:'CT'},
-    {v:P.pe.total,c:'#ffd166',l:'PE'},
-    {v:P.spl.total,c:'#5ddfb8',l:'Splint'},
-    {v:cry.v,c:'#ff7c5d',l:'Crypto'}
-  ];
-  var sb=document.getElementById('stacked'),lg=document.getElementById('leg');
-  sb.innerHTML='';lg.innerHTML='';
-  sdata.forEach(function(s){
-    var pct=(s.v/tot.v*100).toFixed(1);
-    var d=document.createElement('div');d.className='seg';d.style.flex=pct;d.style.background=s.c;d.title=s.l+' '+pct+'%';sb.appendChild(d);
-    lg.innerHTML+='<div class="li"><div class="ld" style="background:'+s.c+'"></div>'+s.l+' '+pct+'%</div>';
-  });
-
-  // PEA table
-  set('pea-v',f(pea.v));
-  html('pea-p','<span class="'+(pp>=0?'up':'down')+'">'+fp(pp)+'</span>');
-  var r='';
-  P.pea.forEach(function(p){
-    var val=p.sh*p.cp,gain=val-p.sh*p.bp,pf=prf(p.cp,p.bp);
-    r+='<tr><td>'+p.n+'</td><td>'+p.sh+'</td><td>'+f(p.bp)+'</td><td style="font-weight:500">'+f(p.cp)+'</td><td>'+f(val)+'</td><td class="'+(gain>=0?'up':'down')+'">'+(gain>=0?'+':'')+f(gain)+'</td><td>'+pbadge(pf)+'</td></tr>';
-  });
-  html('pea-rows',r);
-
-  // CT
-  set('ct-v',f(ct.v));
-  var r2='';
-  P.ct.forEach(function(p){
-    var val=p.sh*p.cp;
-    r2+='<tr><td>'+p.n+'</td><td>'+p.sh.toFixed(5)+'</td><td>'+f(p.cp)+'</td><td>'+f(val)+'</td><td>'+pbadge(prf(p.cp,p.bp))+'</td></tr>';
-  });
-  html('ct-rows',r2);
-
-  // Crypto
-  var r3='';
-  P.cry.forEach(function(c){
-    var val=c.q*c.cp,gain=val-c.q*c.bp,pf=prf(c.cp,c.bp);
-    r3+='<tr><td>'+c.n+'</td><td>'+c.q.toFixed(6)+'</td><td>'+c.bp.toLocaleString('fr-FR',{maximumFractionDigits:2})+' €</td><td style="font-weight:500">'+c.cp.toLocaleString('fr-FR',{maximumFractionDigits:2})+' €</td><td>'+f(val)+'</td><td class="'+(gain>=0?'up':'down')+'">'+(gain>=0?'+':'')+f(gain)+'</td><td>'+pbadge(pf)+'</td></tr>';
-  });
-  html('cry-rows',r3);
-  set('cry-v',f(cry.v));
-  html('cry-p','<span class="'+(cp>=0?'up':'down')+'">'+fp(cp)+'</span>');
-  html('cry-adv','<span class="badge br">'+fp(cp)+'</span>');
-
-  // PE
-  set('pe-v',f(P.pe.total));
-  html('pe-p','<span class="'+(prf(P.pe.total,P.pe.invested)>=0?'up':'down')+'">'+fp(prf(P.pe.total,P.pe.invested))+'</span>');
-  set('pe-v2',f(P.pe.total));
-  html('pe-badge',pbadge(prf(P.pe.total,P.pe.invested)));
-
-  // Splint
-  set('spl-v',f(P.spl.total));
-  html('spl-p','<span class="'+(prf(P.spl.total,P.spl.invested)>=0?'up':'down')+'">'+fp(prf(P.spl.total,P.spl.invested))+'</span>');
-  var r4='';
-  P.spl.items.forEach(function(it){
-    r4+='<tr><td>'+it.l+'</td><td style="color:var(--tx3);font-size:11px">'+it.cat+'</td><td>'+f(it.v)+'</td><td>'+pbadge(prf(it.v,it.inv))+'</td></tr>';
-  });
-  html('spl-rows',r4);
-
-  // Target bars
-  var targets=[
-    {l:'🇺🇸 Américain',a:67,t:35,c:'#7c6fff'},
-    {l:'🌍 MSCI World',a:9,t:25,c:'#5ddfb8'},
-    {l:'🌏 Marchés émergents',a:17,t:20,c:'#ffd166'},
-    {l:'🇪🇺 Europe large',a:11,t:12,c:'#5ddfb8'},
-    {l:'🛡️ Défense/Sect.',a:4,t:8,c:'#ff7c5d'}
-  ];
-  var tb='';
-  targets.forEach(function(x){
-    tb+='<div class="trow"><div class="tlabel">'+x.l+'</div><div class="tbars"><div class="ba1" style="width:'+x.a+'%;background:'+x.c+'"></div><div class="ba2" style="width:'+x.t+'%;background:'+x.c+'"></div></div><div class="tvals">'+x.a+'% → '+x.t+'%</div></div>';
-  });
-  html('target-bars',tb);
-
-  // Geo bars
-  var geos=[
-    {n:'🇺🇸 États-Unis',p:67.1,c:'#7c6fff'},{n:'🌏 Asie émergente',p:12.4,c:'#ffd166'},
-    {n:'🇪🇺 Europe',p:10.8,c:'#5ddfb8'},{n:'🇨🇳 Chine',p:4.2,c:'#ff9f7c'},
-    {n:'🇹🇼 Taïwan',p:2.8,c:'#a78bfa'},{n:'🇯🇵 Japon',p:2.3,c:'#ff7c5d'},{n:'🌎 Autres',p:0.4,c:'#55556a'}
-  ];
-  var gb='';
-  geos.forEach(function(g){
-    gb+='<div class="geo-row"><div class="top"><span>'+g.n+'</span><span style="font-family:Syne,sans-serif;font-weight:600;color:'+g.c+'">'+g.p+'%</span></div><div class="geo-track"><div class="geo-fill" style="width:'+g.p+'%;background:'+g.c+'"></div></div></div>';
-  });
-  html('geo-bars',gb);
-
-  // Compound note
-  set('compound-note','Capital actuel : '+f(tot.v)+' — sans versement supplémentaire');
-}
-
-// ═══ CHARTS ═══
-var charts={};
-function mkChart(id,cfg){
-  var el=document.getElementById(id);if(!el)return;
-  if(charts[id]){charts[id].destroy();}
-  charts[id]=new Chart(el,cfg);
-}
-
-function drawCharts(){
-  var pea=calcPEA(),ct=calcCT(),cry=calcCry(),tot=calcTotal();
-  var tt=pea.v+ct.v+P.pe.total+P.spl.total+cry.v;
-
-  // Donut
-  mkChart('c-donut',{type:'doughnut',data:{
-    labels:['PEA','CT','Private Equity','Splint','Crypto'],
-    datasets:[{data:[pea.v,ct.v,P.pe.total,P.spl.total,cry.v].map(function(v){return parseFloat(v.toFixed(2));}),backgroundColor:['#7c6fff','#a78bfa','#ffd166','#5ddfb8','#ff7c5d'],borderWidth:0,hoverOffset:6}]
-  },options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{
-    legend:{position:'bottom',labels:{color:'#8888a0',font:{family:'DM Mono',size:10},boxWidth:8,padding:8}},
-    tooltip:{callbacks:{label:function(c){return' '+c.label+': '+f(c.parsed)+' ('+((c.parsed/tt)*100).toFixed(1)+'%)';}}}
-  }}});
-
-  // Crypto bar
-  mkChart('c-crypto',{type:'bar',data:{
-    labels:['Bitcoin','Solana'],
-    datasets:[
-      {label:'Investi',data:[P.cry[1].q*P.cry[1].bp,P.cry[0].q*P.cry[0].bp].map(function(v){return parseFloat(v.toFixed(2));}),backgroundColor:'rgba(136,136,160,0.3)',borderWidth:0,borderRadius:3},
-      {label:'Actuel',data:[P.cry[1].q*P.cry[1].cp,P.cry[0].q*P.cry[0].cp].map(function(v){return parseFloat(v.toFixed(2));}),backgroundColor:['#ff7c5d','#a78bfa'],borderWidth:0,borderRadius:3}
-    ]
-  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8888a0',font:{family:'DM Mono',size:10},boxWidth:8}}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#8888a0',font:{family:'DM Mono',size:11}}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#8888a0',font:{family:'DM Mono',size:10},callback:function(v){return v.toFixed(2)+'€';}}}}}});
-
-  // Radar
-  mkChart('c-radar',{type:'radar',data:{
-    labels:['US','MSCI World','Émergents','Europe','Défense'],
-    datasets:[
-      {label:'Actuel',data:[67,9,17,11,4],backgroundColor:'rgba(124,111,255,0.15)',borderColor:'#7c6fff',borderWidth:2,pointBackgroundColor:'#7c6fff',pointRadius:3},
-      {label:'Cible',data:[35,25,20,12,8],backgroundColor:'rgba(93,223,184,0.1)',borderColor:'#5ddfb8',borderWidth:2,borderDash:[5,4],pointBackgroundColor:'#5ddfb8',pointRadius:3}
-    ]
-  },options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:70,ticks:{color:'#55556a',font:{size:9,family:'DM Mono'},stepSize:20,backdropColor:'transparent'},grid:{color:'rgba(255,255,255,0.06)'},pointLabels:{color:'#8888a0',font:{size:11,family:'DM Mono'}},angleLines:{color:'rgba(255,255,255,0.05)'}}},plugins:{legend:{labels:{color:'#8888a0',font:{family:'DM Mono',size:11},boxWidth:8}}}}});
-
-  // Compound
-  var cap=tot.v;
-  var years=[0,1,2,3,4,5];
-  mkChart('c-compound',{type:'line',data:{
-    labels:years.map(function(y){return y===0?'Auj.':'An '+y;}),
-    datasets:[
-      {label:'+8%/an',data:years.map(function(y){return Math.round(cap*Math.pow(1.08,y));}),borderColor:'#5ddfb8',backgroundColor:'rgba(93,223,184,0.05)',borderWidth:2,tension:0.4,pointRadius:4,pointBackgroundColor:'#5ddfb8'},
-      {label:'+10%/an',data:years.map(function(y){return Math.round(cap*Math.pow(1.10,y));}),borderColor:'#7c6fff',backgroundColor:'rgba(124,111,255,0.05)',borderWidth:2,tension:0.4,pointRadius:4,pointBackgroundColor:'#7c6fff'},
-      {label:'+12%/an',data:years.map(function(y){return Math.round(cap*Math.pow(1.12,y));}),borderColor:'#ffd166',backgroundColor:'rgba(255,209,102,0.05)',borderWidth:2,tension:0.4,pointRadius:4,pointBackgroundColor:'#ffd166'}
-    ]
-  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8888a0',font:{family:'DM Mono',size:11},boxWidth:8}},tooltip:{callbacks:{label:function(c){return' '+c.dataset.label+': '+f(c.parsed.y);}}}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#8888a0',font:{family:'DM Mono',size:11}}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#8888a0',font:{family:'DM Mono',size:10},callback:function(v){return v+' €';}}}}}});
-
-  buildMap();
-}
-
-// ═══ MAP ═══
-function buildMap(){
-  var el=document.getElementById('map');
-  if(!el||el.children.length>1)return;
-  var svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-  svg.setAttribute('width','100%');svg.setAttribute('height','100%');
-  svg.style.cssText='position:absolute;top:0;left:0;pointer-events:none';
-  svg.innerHTML='<defs><pattern id="g" width="36" height="28" patternUnits="userSpaceOnUse"><path d="M 36 0 L 0 0 0 28" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#g)"/><line x1="0" y1="50%" x2="100%" y2="50%" stroke="rgba(255,255,255,0.05)" stroke-width="0.5" stroke-dasharray="4,4"/>';
-  el.appendChild(svg);
-  var bubbles=[
-    ['🇺🇸 US\n67%',22,38,88,'#7c6fff'],['🌏 Asie EM\n12%',72,44,55,'#ffd166'],
-    ['🇪🇺 Europe\n11%',48,30,52,'#5ddfb8'],['🇨🇳 Chine\n4%',74,37,33,'#ff9f7c'],
-    ['🇮🇳 Inde\n4%',67,48,33,'#4ade80'],['🇯🇵 Japon\n2%',79,34,26,'#ff7c5d'],
-    ['🇰🇷 Corée\n2%',80,44,24,'#a78bfa'],['🇹🇼 TW\n3%',77,50,28,'#ffd166'],['🇬🇧 UK\n2%',45,24,22,'#7c6fff']
-  ];
-  bubbles.forEach(function(b){
-    var d=document.createElement('div');d.className='bubble';
-    d.style.cssText='left:'+b[1]+'%;top:'+b[2]+'%;width:'+b[3]+'px;height:'+b[3]+'px;background:'+b[4]+'18;border:1.5px solid '+b[4]+'55;';
-    d.innerHTML='<div class="blbl" style="color:'+b[4]+';font-size:'+Math.max(8,b[3]/8)+'px">'+b[0].replace('\n','<br>')+'</div>';
-    el.appendChild(d);
-  });
-}
-
-// ═══ MANUAL EDIT ═══
-function buildSplintForm(){
-  var g=document.getElementById('splint-form');
-  if(!g||g.children.length>0)return;
-  P.spl.items.forEach(function(it){
-    g.innerHTML+='<div class="ef"><label>'+it.l.substring(0,22)+'</label><input type="number" id="sf_'+it.k+'" step="0.01" value="'+it.v+'"></div>';
-  });
-}
-
-function saveSplint(){
-  var newitems=P.spl.items.map(function(it){
-    var v=parseFloat(document.getElementById('sf_'+it.k)&&document.getElementById('sf_'+it.k).value||it.v);
-    return Object.assign({},it,{v:v});
-  });
-  var total=newitems.reduce(function(s,i){return s+i.v;},0);
-  var invested=newitems.reduce(function(s,i){return s+i.inv;},0);
-  P.spl={total:total,invested:invested,items:newitems};
-  try{localStorage.setItem('spl',JSON.stringify(P.spl));}catch(e){}
-  var btn=document.getElementById('spl-btn');btn.textContent='✓ Enregistré !';
-  setTimeout(function(){btn.textContent='Enregistrer Splint';},2000);
-  updateAll();drawCharts();
-}
-
-function savePE(){
-  var v=parseFloat(document.getElementById('pe-input').value||15.29);
-  P.pe={total:v,invested:15.00};
-  try{localStorage.setItem('pe',JSON.stringify(P.pe));}catch(e){}
-  updateAll();drawCharts();
-  alert('✓ PE mis à jour : '+f(v));
-}
-
-// ═══ NAVIGATION ═══
-function nav(id,btn){
-  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
-  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
-  document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
-  if(id==='p6')buildSplintForm();
-  drawCharts();
-}
-
-// ═══ INIT ═══
-window.addEventListener('load', function(){
-  updateAll();
-  drawCharts();
-  fetchAll();
-  setInterval(fetchAll, 5*60*1000);
-});
-</script>
+<script src="app.js"></script>
 </body>
 </html>
