@@ -4,11 +4,44 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Epargne.live</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
+
+<!-- ══ PAGE PIN ══ -->
+<div id="pin-screen">
+  <div class="pin-wrap">
+    <div class="pin-logo">epargne<em>.</em>live</div>
+    <div class="pin-tagline">Acces prive — entrez votre code</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+    <div class="pin-grid">
+      <div class="pin-btn" onclick="pinPress('1')">1</div>
+      <div class="pin-btn" onclick="pinPress('2')">2</div>
+      <div class="pin-btn" onclick="pinPress('3')">3</div>
+      <div class="pin-btn" onclick="pinPress('4')">4</div>
+      <div class="pin-btn" onclick="pinPress('5')">5</div>
+      <div class="pin-btn" onclick="pinPress('6')">6</div>
+      <div class="pin-btn" onclick="pinPress('7')">7</div>
+      <div class="pin-btn" onclick="pinPress('8')">8</div>
+      <div class="pin-btn" onclick="pinPress('9')">9</div>
+      <div class="pin-btn pin-del" onclick="pinDel()">⌫</div>
+      <div class="pin-btn" onclick="pinPress('0')">0</div>
+      <div class="pin-btn pin-ok" onclick="pinCheck()">OK</div>
+    </div>
+    <div class="pin-sub">Memorise 30 jours sur cet appareil</div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app" style="display:none">
 
 <div class="loadbar" id="lb"></div>
 
@@ -18,9 +51,11 @@
     <button class="tab active" onclick="nav('p1',this)">Accueil</button>
     <button class="tab" onclick="nav('p2',this)">Portefeuille</button>
     <button class="tab" onclick="nav('p3',this)">Investir</button>
-    <button class="tab" onclick="nav('p4',this)">Parametres</button>
+    <button class="tab" onclick="nav('p4',this)">Actualites</button>
+    <button class="tab" onclick="nav('p5',this)">Parametres</button>
   </div>
   <div class="topbar-r">
+    <div class="mkt-wrap" id="mkt-wrap"></div>
     <div class="dot loading" id="dot"></div>
     <div class="lbl" id="lbl">Chargement...</div>
     <button class="rbtn" onclick="fetchAll()">Actualiser</button>
@@ -29,27 +64,24 @@
 
 <!-- ══ PAGE 1 : ACCUEIL ══ -->
 <div id="p1" class="page active">
-  <div class="quote-wrap">
+  <div class="quote-wrap anim-entry">
     <div class="quote-accent"></div>
     <div class="quote-text">"Nobody is coming<br>to save you."</div>
     <div class="quote-author">— David Goggins</div>
   </div>
-  <div class="g5" style="margin-bottom:16px">
-    <div class="card"><div class="ctitle">Patrimoine total</div><div class="mval" id="k-total">...</div><div class="msub" id="k-gain">...</div></div>
-    <div class="card"><div class="ctitle">PEA live</div><div class="mval" id="k-pea">...</div><div class="msub" id="k-pea-p">...</div></div>
-    <div class="card"><div class="ctitle">Splint Invest</div><div class="mval" id="k-splint">...</div><div class="msub" id="k-splint-p">...</div></div>
-    <div class="card"><div class="ctitle">Crypto live</div><div class="mval" id="k-crypto">...</div><div class="msub" id="k-crypto-p">...</div></div>
-    <div class="card"><div class="ctitle">Derniere MaJ</div><div class="mval" style="font-size:15px;padding-top:6px" id="k-time">...</div><div class="msub">Auto 5 min</div></div>
-  </div>
-  <div class="g2" style="margin-bottom:16px">
-    <div style="display:flex;flex-direction:column;gap:12px">
+
+  <div class="section-lbl anim-entry" style="animation-delay:.1s">Apercu global</div>
+  <div class="g5 anim-entry" style="margin-bottom:16px;animation-delay:.15s" id="kpi-grid"></div>
+
+  <div class="g2 anim-entry" style="margin-bottom:16px;animation-delay:.2s">
+    <div style="display:flex;flex-direction:column;gap:10px">
       <div class="score-card">
         <div class="score-icon">🎯</div>
         <div class="score-info">
           <div class="score-title">Score de diversification</div>
           <div class="score-val" id="div-score">...</div>
           <div class="prog-track"><div class="prog-fill" id="div-bar" style="background:var(--ac);width:0%"></div></div>
-          <div style="font-size:10px;color:var(--tx3);margin-top:4px" id="div-detail">...</div>
+          <div class="score-detail" id="div-detail">...</div>
         </div>
       </div>
       <div class="score-card">
@@ -58,32 +90,40 @@
           <div class="score-title">Objectif <span id="goal-lbl">2000</span> EUR</div>
           <div class="score-val" id="goal-val">...</div>
           <div class="prog-track"><div class="prog-fill" id="goal-bar" style="background:var(--gn);width:0%"></div></div>
-          <div style="font-size:10px;color:var(--tx3);margin-top:4px" id="goal-detail">...</div>
+          <div class="score-detail" id="goal-detail">...</div>
         </div>
       </div>
-      <div class="streak">
+      <div class="streak-card">
         <div class="streak-num" id="streak-num">2</div>
         <div>
-          <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--tx)">mois consecutifs</div>
-          <div style="font-size:10px;color:var(--tx2)" id="streak-sub">Dernier versement : 10 mars 2026</div>
+          <div class="streak-label">mois consecutifs</div>
+          <div class="streak-sub" id="streak-sub">Dernier : 10 mars 2026</div>
         </div>
         <div style="margin-left:auto;font-size:22px">🔥</div>
       </div>
+      <div class="meteo-card" id="meteo-card">
+        <div class="meteo-icon" id="meteo-icon">☀️</div>
+        <div>
+          <div class="meteo-title" id="meteo-title">Beau fixe</div>
+          <div class="meteo-sub" id="meteo-sub">...</div>
+        </div>
+      </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;flex-direction:column;gap:10px">
       <div class="card">
         <div class="ctitle">Resume de la semaine</div>
         <div id="week-summary"></div>
-        <div class="ibox" id="next-milestone" style="margin-top:8px">...</div>
+        <div class="ibox" id="next-milestone">...</div>
       </div>
       <div class="card">
         <div class="ctitle">Repartition du patrimoine</div>
-        <div style="height:8px;border-radius:4px;overflow:hidden;display:flex;margin:4px 0 10px" id="stacked"></div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px" id="stacked-leg"></div>
+        <div class="stacked-bar" id="stacked"></div>
+        <div class="stacked-leg" id="stacked-leg"></div>
       </div>
     </div>
   </div>
-  <div class="card">
+
+  <div class="card anim-entry" style="animation-delay:.25s">
     <div class="ctitle">Badges debloques</div>
     <div class="bdg-grid" id="badge-home"></div>
   </div>
@@ -97,48 +137,50 @@
     <button class="stab" onclick="sub('s-geo',this,'p2')">Geographie</button>
     <button class="stab" onclick="sub('s-risk',this,'p2')">Risque</button>
     <button class="stab" onclick="sub('s-fiscal',this,'p2')">Fiscal</button>
+    <button class="stab" onclick="sub('s-div',this,'p2')">Dividendes</button>
+    <button class="stab" onclick="sub('s-sector',this,'p2')">Sectoriel</button>
   </div>
 
   <div id="s-pos" class="subpage active">
-    <div class="card" style="margin-bottom:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <div><div class="ctitle">PEA — Trade Republic</div>
-          <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700"><span id="pea-v">...</span> <span style="font-size:12px" id="pea-p">...</span></div></div>
+          <div class="pos-total"><span id="pea-v">...</span> <span class="pos-perf" id="pea-p">...</span></div></div>
         <span class="badge bp">Verse : 302,66 EUR</span>
       </div>
       <div class="scroll-x"><table>
         <thead><tr><th>ETF</th><th>Parts</th><th>Px achat</th><th>Px actuel</th><th>Valeur</th><th>Gain</th><th>Perf.</th></tr></thead>
-        <tbody id="pea-rows"><tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:16px">Chargement...</td></tr></tbody>
+        <tbody id="pea-rows"><tr><td colspan="7" class="loading-cell">Chargement...</td></tr></tbody>
       </table></div>
-      <div style="font-size:10px;color:var(--tx3);text-align:right;margin-top:6px" id="lu-pea"></div>
+      <div class="last-update" id="lu-pea"></div>
     </div>
     <div class="g2">
       <div class="card">
-        <div style="margin-bottom:12px"><div class="ctitle">Compte-titres</div>
-          <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700" id="ct-v">...</div></div>
+        <div style="margin-bottom:10px"><div class="ctitle">Compte-titres</div>
+          <div class="pos-total" id="ct-v">...</div></div>
         <table><thead><tr><th>Position</th><th>Fraction</th><th>Px actuel</th><th>Valeur</th><th>Perf.</th></tr></thead>
         <tbody id="ct-rows"></tbody></table>
       </div>
       <div class="card">
-        <div style="margin-bottom:12px"><div class="ctitle">Crypto — Trade Republic</div>
-          <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700"><span id="cry-v">...</span> <span style="font-size:12px" id="cry-p">...</span></div></div>
+        <div style="margin-bottom:10px"><div class="ctitle">Crypto — Trade Republic</div>
+          <div class="pos-total"><span id="cry-v">...</span> <span class="pos-perf" id="cry-p">...</span></div></div>
         <table><thead><tr><th>Crypto</th><th>Qte</th><th>Px achat</th><th>Px actuel</th><th>Gain</th><th>Perf.</th></tr></thead>
         <tbody id="cry-rows"></tbody></table>
-        <div style="font-size:10px;color:var(--tx3);text-align:right;margin-top:6px" id="lu-cry"></div>
+        <div class="last-update" id="lu-cry"></div>
       </div>
     </div>
-    <div class="g2" style="margin-top:14px">
+    <div class="g2" style="margin-top:12px">
       <div class="card">
-        <div style="margin-bottom:12px"><div class="ctitle">Private Equity — Apollo</div>
-          <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700"><span id="pe-v">...</span> <span style="font-size:12px" id="pe-p">...</span></div></div>
+        <div style="margin-bottom:10px"><div class="ctitle">Private Equity — Apollo</div>
+          <div class="pos-total"><span id="pe-v">...</span> <span class="pos-perf" id="pe-p">...</span></div></div>
         <table><thead><tr><th>Fonds</th><th>Investi</th><th>Valeur</th><th>Perf.</th><th>Frais</th></tr></thead>
         <tbody><tr><td>Apollo Private Equity</td><td>15,00 EUR</td><td id="pe-v2">...</td><td id="pe-badge">...</td><td style="color:var(--am)">2,20%+12,5%</td></tr></tbody></table>
-        <div style="color:var(--tx3);font-size:11px;margin-top:6px">Liquidite non garantie — mise a jour manuelle</div>
+        <div class="ibox" style="margin-top:8px">Liquidite non garantie — mise a jour manuelle</div>
       </div>
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <div><div class="ctitle">Splint Invest</div>
-            <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700"><span id="spl-v">...</span> <span style="font-size:12px" id="spl-p">...</span></div></div>
+            <div class="pos-total"><span id="spl-v">...</span> <span class="pos-perf" id="spl-p">...</span></div></div>
           <span class="badge bt">11 positions</span>
         </div>
         <table><thead><tr><th>Actif</th><th>Cat.</th><th>Valeur</th><th>Perf.</th></tr></thead>
@@ -148,29 +190,34 @@
   </div>
 
   <div id="s-geo" class="subpage">
-    <div class="card" style="margin-bottom:16px">
+    <div class="card" style="margin-bottom:12px">
       <div class="ctitle">Carte d'exposition geographique</div>
       <div id="world-map"></div>
     </div>
     <div class="g2">
       <div class="card"><div class="ctitle">Exposition actuelle</div><div id="geo-bars" style="margin-top:8px"></div></div>
-      <div class="card"><div class="ctitle">Radar — actuel vs objectifs</div><div class="cw" style="height:250px"><canvas id="c-radar"></canvas></div></div>
+      <div class="card"><div class="ctitle">Radar — actuel vs objectifs</div><div class="cw" style="height:240px"><canvas id="c-radar"></canvas></div></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="ctitle">Objectifs geographiques — cible vs actuel</div>
+      <div id="target-bars" style="margin-top:8px"></div>
+      <div class="ibox">PEA concentre a 67% US. Priorite : renforcer MSCI World et Emergents a chaque versement.</div>
     </div>
   </div>
 
   <div id="s-risk" class="subpage">
-    <div class="g2" style="margin-bottom:14px">
+    <div class="g2" style="margin-bottom:12px">
       <div class="card">
-        <div class="ctitle">Risque estime</div>
+        <div class="ctitle">Risque estime du portefeuille</div>
         <div class="risk-track">
           <div class="risk-seg" style="flex:3;background:var(--gn);opacity:.5"></div>
           <div class="risk-seg" style="flex:4;background:var(--am);opacity:.5"></div>
           <div class="risk-seg" style="flex:3;background:var(--rd);opacity:.5"></div>
           <div class="risk-needle" id="risk-needle" style="left:55%"></div>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--tx3)"><span>Faible</span><span>Modere</span><span>Eleve</span></div>
-        <div style="margin-top:14px;font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--ac)" id="risk-label">Modere</div>
-        <div style="font-size:12px;color:var(--tx2);margin-top:4px" id="risk-desc">Bon equilibre pour un horizon 5+ ans.</div>
+        <div class="risk-labels"><span>Faible</span><span>Modere</span><span>Eleve</span></div>
+        <div class="risk-val" id="risk-label">Modere</div>
+        <div class="risk-desc" id="risk-desc">Bon equilibre pour un horizon 5+ ans.</div>
       </div>
       <div class="card">
         <div class="ctitle">Correlation entre actifs PEA</div>
@@ -182,14 +229,32 @@
       <div class="ctitle">Meilleur moment pour investir</div>
       <div class="advice h" style="margin-top:8px">
         <div class="advice-head"><div class="advice-title">Le DCA bat le market timing</div><span class="badge bg">Strategie validee</span></div>
-        <div class="advice-body">Des etudes sur 20 ans montrent qu'investir regulierement surpasse le market timing dans 87% des cas. Avec des revenus variables, investis des que tu as de l'argent disponible — ton horizon 5+ ans est ideal pour cette strategie.</div>
+        <div class="advice-body">Des etudes sur 20 ans montrent qu'investir regulierement surpasse le market timing dans 87% des cas. Avec des revenus variables, investis des que tu as de l'argent — ton horizon 5+ ans est ideal pour cette strategie.</div>
       </div>
     </div>
   </div>
 
   <div id="s-fiscal" class="subpage">
-    <div class="ibox" style="margin-bottom:16px">⚠️ Estimations fiscales 2026. Consulte un conseiller fiscal pour ta situation personnelle.</div>
+    <div class="ibox" style="margin-bottom:14px">⚠️ Estimations fiscales 2026. Consulte un conseiller fiscal pour ta situation personnelle.</div>
     <div id="fiscal-content"></div>
+  </div>
+
+  <div id="s-div" class="subpage">
+    <div class="ibox" style="margin-bottom:14px">💡 Tes ETF sont en mode accumulation (Acc) — les dividendes sont reinvestis automatiquement. Cette section estime leur impact sur ta performance reelle.</div>
+    <div id="div-content"></div>
+  </div>
+
+  <div id="s-sector" class="subpage">
+    <div class="g2">
+      <div class="card">
+        <div class="ctitle">Repartition sectorielle estimee</div>
+        <div class="cw" style="height:220px"><canvas id="c-sector"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Detail par secteur</div>
+        <div id="sector-bars" style="margin-top:8px"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -201,6 +266,7 @@
     <button class="stab" onclick="sub('s-proj',this,'p3')">Projection</button>
     <button class="stab" onclick="sub('s-hist',this,'p3')">Historique</button>
     <button class="stab" onclick="sub('s-journal',this,'p3')">Journal</button>
+    <button class="stab" onclick="sub('s-add',this,'p3')">Ajouter position</button>
     <button class="stab" onclick="sub('s-maj',this,'p3')">Mise a jour</button>
   </div>
 
@@ -208,14 +274,14 @@
     <div class="g2">
       <div class="card">
         <div class="ctitle">Simulateur de versement</div>
-        <div style="margin-bottom:14px">
-          <div style="font-size:12px;color:var(--tx2);margin-bottom:6px">Montant a investir (EUR)</div>
+        <div style="margin-bottom:12px">
+          <div class="field-lbl">Montant a investir (EUR)</div>
           <div style="display:flex;gap:8px">
             <input class="inp" type="number" id="sim-amount" value="50" min="1" step="1" style="width:130px">
             <button class="btn" onclick="runSim()">Simuler</button>
           </div>
         </div>
-        <div id="sim-result"><div style="font-size:11px;color:var(--tx3)">Entre un montant et clique Simuler.</div></div>
+        <div id="sim-result"><div class="field-lbl">Entre un montant et clique Simuler.</div></div>
       </div>
       <div class="card">
         <div class="ctitle">Ecart par rapport aux objectifs</div>
@@ -225,88 +291,197 @@
   </div>
 
   <div id="s-proj" class="subpage">
-    <div class="card" style="margin-bottom:14px">
+    <div class="card" style="margin-bottom:12px">
       <div class="ctitle">Projection avec versements reguliers</div>
-      <div class="g2" style="margin-bottom:16px">
+      <div class="g2" style="margin-bottom:14px">
         <div>
-          <div class="sl-row"><div class="sl-lbl">Versement mensuel</div><input type="range" id="sl-monthly" min="0" max="500" value="50" step="10" oninput="updateProj()"><div class="sl-val" id="sl-mv">50 EUR/mois</div></div>
+          <div class="sl-row"><div class="sl-lbl">Versement mensuel</div><input type="range" id="sl-monthly" min="0" max="500" value="50" step="10" oninput="updateProj()"><div class="sl-val" id="sl-mv">50 EUR</div></div>
           <div class="sl-row"><div class="sl-lbl">Rendement annuel</div><input type="range" id="sl-rate" min="4" max="15" value="10" step="0.5" oninput="updateProj()"><div class="sl-val" id="sl-rv">10%</div></div>
-          <div class="sl-row"><div class="sl-lbl">Horizon (annees)</div><input type="range" id="sl-years" min="1" max="30" value="5" step="1" oninput="updateProj()"><div class="sl-val" id="sl-yv">5 ans</div></div>
+          <div class="sl-row"><div class="sl-lbl">Horizon</div><input type="range" id="sl-years" min="1" max="30" value="5" step="1" oninput="updateProj()"><div class="sl-val" id="sl-yv">5 ans</div></div>
+          <div class="sl-row"><div class="sl-lbl">Inflation</div><input type="range" id="sl-infl" min="0" max="6" value="2" step="0.5" oninput="updateProj()"><div class="sl-val" id="sl-iv">2%</div></div>
         </div>
-        <div class="g3">
-          <div class="card" style="padding:14px;text-align:center"><div class="ctitle">Capital final</div><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--ac)" id="proj-final">...</div></div>
-          <div class="card" style="padding:14px;text-align:center"><div class="ctitle">Total verse</div><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700" id="proj-invested">...</div></div>
-          <div class="card" style="padding:14px;text-align:center"><div class="ctitle">Interets generes</div><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--gn)" id="proj-interest">...</div></div>
+        <div class="g3" style="align-content:start">
+          <div class="card" style="padding:12px;text-align:center"><div class="ctitle">Capital final</div><div class="proj-val ac" id="proj-final">...</div></div>
+          <div class="card" style="padding:12px;text-align:center"><div class="ctitle">Total verse</div><div class="proj-val" id="proj-invested">...</div></div>
+          <div class="card" style="padding:12px;text-align:center"><div class="ctitle">Interets</div><div class="proj-val up" id="proj-interest">...</div></div>
+          <div class="card" style="padding:12px;text-align:center;grid-column:1/-1"><div class="ctitle">Valeur reelle apres inflation</div><div class="proj-val" id="proj-real" style="font-size:16px">...</div></div>
         </div>
       </div>
-      <div class="cw" style="height:220px"><canvas id="c-proj"></canvas></div>
+      <div class="cw" style="height:200px"><canvas id="c-proj"></canvas></div>
     </div>
-    <div class="card"><div class="ctitle">Comparaison multi-scenarios (5 ans)</div><div class="cw" style="height:180px"><canvas id="c-scen"></canvas></div></div>
+    <div class="card">
+      <div class="ctitle">Comparaison multi-scenarios (5 ans)</div>
+      <div class="cw" style="height:170px"><canvas id="c-scen"></canvas></div>
+    </div>
   </div>
 
   <div id="s-hist" class="subpage">
-    <div class="card" style="margin-bottom:14px">
+    <div class="card" style="margin-bottom:12px">
       <div class="ctitle">Ajouter un versement</div>
-      <div class="g4" style="margin-bottom:12px">
+      <div class="g4" style="margin-bottom:10px">
         <div><div class="field-lbl">Date</div><input class="inp" type="date" id="h-date"></div>
         <div><div class="field-lbl">Montant (EUR)</div><input class="inp" type="number" id="h-amount" placeholder="50"></div>
         <div><div class="field-lbl">ETF / Compte</div>
-          <select class="inp" id="h-etf">
-            <option>PEA Nasdaq 100</option><option>MSCI Emerging Asia</option><option>PEA S&P 500</option>
-            <option>MSCI EM Global</option><option>MSCI World PEA</option><option>Stoxx Europe 600</option>
-            <option>EURO STOXX Banks</option><option>Europe Defense</option><option>Splint Invest</option>
-            <option>Apollo PE</option><option>Bitcoin</option><option>Solana</option>
-          </select>
+          <select class="inp" id="h-etf" style="width:100%"></select>
         </div>
         <div style="display:flex;align-items:flex-end"><button class="btn" style="width:100%" onclick="addV()">+ Ajouter</button></div>
       </div>
     </div>
     <div class="card">
       <div class="ctitle">Historique des versements</div>
-      <div class="cw" style="height:150px;margin-bottom:14px"><canvas id="c-hist"></canvas></div>
+      <div class="cw" style="height:140px;margin-bottom:12px"><canvas id="c-hist"></canvas></div>
       <table><thead><tr><th>Date</th><th>ETF / Compte</th><th>Montant</th><th></th></tr></thead>
-      <tbody id="hist-rows"><tr><td colspan="4" style="text-align:center;color:var(--tx3);padding:16px">Aucun versement</td></tr></tbody></table>
+      <tbody id="hist-rows"><tr><td colspan="4" class="loading-cell">Aucun versement</td></tr></tbody></table>
     </div>
   </div>
 
   <div id="s-journal" class="subpage">
-    <div class="card" style="margin-bottom:14px">
+    <div class="card" style="margin-bottom:12px">
       <div class="ctitle">Nouvelle entree</div>
       <div class="g4" style="margin-bottom:10px">
         <div><div class="field-lbl">Date</div><input class="inp" type="date" id="j-date"></div>
         <div><div class="field-lbl">Position</div><input class="inp" type="text" id="j-etf" placeholder="ex: MSCI World"></div>
         <div><div class="field-lbl">Type</div>
-          <select class="inp" id="j-type"><option>Achat</option><option>Vente</option><option>Reflexion</option><option>Objectif</option></select>
-        </div>
+          <select class="inp" id="j-type"><option>Achat</option><option>Vente</option><option>Reflexion</option><option>Objectif</option></select></div>
         <div style="display:flex;align-items:flex-end"><button class="btn" style="width:100%" onclick="addJ()">+ Enregistrer</button></div>
       </div>
       <div><div class="field-lbl">Note / Raison</div><textarea class="inp" id="j-note" rows="2" placeholder="Pourquoi cette decision ?" style="resize:none"></textarea></div>
     </div>
-    <div class="card"><div class="ctitle">Journal de decisions</div><div id="journal-list"><div style="text-align:center;color:var(--tx3);padding:20px;font-size:12px">Aucune entree</div></div></div>
+    <div class="card"><div class="ctitle">Journal de decisions</div><div id="journal-list"><div class="loading-cell" style="padding:20px;text-align:center">Aucune entree</div></div></div>
+  </div>
+
+  <div id="s-add" class="subpage">
+    <div class="g2">
+      <div class="card">
+        <div class="ctitle">Ajouter une nouvelle position</div>
+        <div style="margin-bottom:12px">
+          <div class="field-lbl">Type de position</div>
+          <div style="display:flex;gap:6px;margin-top:6px">
+            <button class="type-btn active" onclick="setAddType('etf',this)">ETF PEA</button>
+            <button class="type-btn" onclick="setAddType('crypto',this)">Crypto</button>
+            <button class="type-btn" onclick="setAddType('splint',this)">Splint</button>
+          </div>
+        </div>
+        <div id="add-etf-form">
+          <div class="field-lbl">ISIN de l'ETF</div>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <input class="inp" type="text" id="add-isin" placeholder="ex: FR001400U5Q4" style="flex:1">
+            <button class="btn" onclick="searchETF()">Rechercher</button>
+          </div>
+          <div id="add-etf-result" class="ibox" style="display:none"></div>
+          <div id="add-etf-manual" style="display:none;margin-top:10px">
+            <div class="field-lbl">Ticker Yahoo Finance (manuel)</div>
+            <input class="inp" type="text" id="add-ticker-manual" placeholder="ex: WPEA.PA" style="margin-bottom:8px">
+            <div class="ibox">Ticker non trouve automatiquement. Entre-le manuellement ou demande-le a Claude en donnant l'ISIN.</div>
+          </div>
+          <div id="add-etf-details" style="display:none">
+            <div class="g2" style="margin-top:10px">
+              <div><div class="field-lbl">Nombre de parts</div><input class="inp" type="number" id="add-shares" step="0.0001" placeholder="1"></div>
+              <div><div class="field-lbl">Prix d'achat (EUR/part)</div><input class="inp" type="number" id="add-bp" step="0.01" placeholder="0.00"></div>
+            </div>
+            <button class="btn" style="width:100%;margin-top:10px" onclick="addPosition()">Ajouter au portefeuille</button>
+          </div>
+        </div>
+        <div id="add-crypto-form" style="display:none">
+          <div class="field-lbl">Nom de la crypto</div>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <input class="inp" type="text" id="add-crypto-name" placeholder="ex: ethereum" style="flex:1">
+            <button class="btn" onclick="searchCrypto()">Rechercher</button>
+          </div>
+          <div id="add-crypto-result" class="ibox" style="display:none"></div>
+          <div id="add-crypto-details" style="display:none">
+            <div class="g2" style="margin-top:10px">
+              <div><div class="field-lbl">Quantite</div><input class="inp" type="number" id="add-qty" step="0.000001" placeholder="0.001"></div>
+              <div><div class="field-lbl">Prix d'achat (EUR)</div><input class="inp" type="number" id="add-crypto-bp" step="0.01" placeholder="0.00"></div>
+            </div>
+            <button class="btn" style="width:100%;margin-top:10px" onclick="addCrypto()">Ajouter</button>
+          </div>
+        </div>
+        <div id="add-splint-form" style="display:none">
+          <div class="g2" style="margin-bottom:10px">
+            <div><div class="field-lbl">Nom de l'actif</div><input class="inp" type="text" id="add-spl-name" placeholder="ex: Ronaldo PSA 9"></div>
+            <div><div class="field-lbl">Categorie</div>
+              <select class="inp" id="add-spl-cat"><option>Collectibles</option><option>Art</option><option>Sacs a main</option><option>Autre</option></select></div>
+            <div><div class="field-lbl">Valeur actuelle (EUR)</div><input class="inp" type="number" id="add-spl-val" step="0.01" placeholder="50.00"></div>
+            <div><div class="field-lbl">Montant investi (EUR)</div><input class="inp" type="number" id="add-spl-inv" step="0.01" placeholder="50.00"></div>
+          </div>
+          <button class="btn" style="width:100%" onclick="addSplint()">Ajouter a Splint</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Positions actuelles</div>
+        <div id="all-positions-list"></div>
+      </div>
+    </div>
   </div>
 
   <div id="s-maj" class="subpage">
-    <div class="card" style="margin-bottom:14px">
-      <div style="color:var(--ac);font-family:'Syne',sans-serif;font-weight:600;font-size:14px;margin-bottom:14px">💼 Splint Invest</div>
-      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px" id="splint-form"></div>
+    <div class="card" style="margin-bottom:12px">
+      <div style="color:var(--ac);font-family:'Josefin Sans',sans-serif;font-weight:600;font-size:14px;letter-spacing:.05em;margin-bottom:12px">💼 Splint Invest</div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:10px" id="splint-form"></div>
       <button class="btn" onclick="saveSplint()" id="spl-btn">Enregistrer Splint</button>
     </div>
     <div class="card">
-      <div style="color:var(--am);font-family:'Syne',sans-serif;font-weight:600;font-size:14px;margin-bottom:14px">📊 Private Equity Apollo</div>
-      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px">
+      <div style="color:var(--am);font-family:'Josefin Sans',sans-serif;font-weight:600;font-size:14px;letter-spacing:.05em;margin-bottom:12px">📊 Private Equity Apollo</div>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:10px">
         <div><div class="field-lbl">Valeur actuelle (EUR)</div><input class="inp" type="number" id="pe-input" step="0.01" value="15.29"></div>
       </div>
       <button class="btn" onclick="savePE()">Enregistrer PE</button>
     </div>
-    <div class="ibox" style="margin-top:14px">💡 ETF et crypto se mettent a jour automatiquement via les APIs. Splint et PE necessitent une mise a jour manuelle.</div>
+    <div class="ibox" style="margin-top:12px">💡 ETF et crypto se mettent a jour automatiquement. Splint et PE necessitent une mise a jour manuelle depuis l'app.</div>
   </div>
 </div>
 
-<!-- ══ PAGE 4 : PARAMETRES ══ -->
+<!-- ══ PAGE 4 : ACTUALITES ══ -->
 <div id="p4" class="page">
+  <div class="stitle">Actualites & <em>marches</em></div>
+  <div class="g2">
+    <div>
+      <div class="section-lbl">Articles du jour</div>
+      <div class="card" id="news-feed">
+        <div class="loading-cell" style="padding:20px;text-align:center">Chargement des actualites...</div>
+      </div>
+      <div class="section-lbl" style="margin-top:14px">Liens directs</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <a href="https://www.lesechos.fr/finance-marches" target="_blank" class="quick-link">
+          <div class="ql-icon">📰</div><div><div class="ql-name">Les Echos</div><div class="ql-desc">Marches & Finance</div></div><div class="ql-arrow">↗</div>
+        </a>
+        <a href="https://www.bloomberg.com/markets" target="_blank" class="quick-link">
+          <div class="ql-icon">📊</div><div><div class="ql-name">Bloomberg</div><div class="ql-desc">Actualites mondiales</div></div><div class="ql-arrow">↗</div>
+        </a>
+        <a href="https://www.amundi.com/fr/particulier" target="_blank" class="quick-link">
+          <div class="ql-icon">🏦</div><div><div class="ql-name">Amundi</div><div class="ql-desc">Analyses & ETF</div></div><div class="ql-arrow">↗</div>
+        </a>
+        <a href="https://finance.google.com" target="_blank" class="quick-link">
+          <div class="ql-icon">📈</div><div><div class="ql-name">Google Finance</div><div class="ql-desc">Cours en temps reel</div></div><div class="ql-arrow">↗</div>
+        </a>
+        <a href="https://www.boursorama.com/bourse/actualites/" target="_blank" class="quick-link">
+          <div class="ql-icon">🇫🇷</div><div><div class="ql-name">Boursorama</div><div class="ql-desc">Actualites bourse FR</div></div><div class="ql-arrow">↗</div>
+        </a>
+      </div>
+    </div>
+    <div>
+      <div class="section-lbl">Calendrier economique</div>
+      <div class="card" id="eco-calendar">
+        <div class="loading-cell" style="padding:20px;text-align:center">Chargement...</div>
+      </div>
+      <div class="section-lbl" style="margin-top:14px">Impact sur ton portefeuille</div>
+      <div class="card" id="news-impact">
+        <div style="font-size:12px;color:var(--tx2);line-height:1.8">
+          <div style="margin-bottom:8px">🔴 <strong style="color:var(--tx)">Decision Fed</strong> — Ton exposition US (67%) sera directement impactee. Une baisse de taux favorise le Nasdaq.</div>
+          <div style="margin-bottom:8px">🟡 <strong style="color:var(--tx)">PMI Zone Euro</strong> — Impact sur tes ETF Stoxx 600 et STOXX Banks.</div>
+          <div>🟢 <strong style="color:var(--tx)">Reunion BCE</strong> — Positif potentiel pour tes positions Europe Defense.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE 5 : PARAMETRES ══ -->
+<div id="p5" class="page">
   <div class="stitle">Parametres & <em>personnalisation</em></div>
   <div class="g2">
-    <div style="display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;flex-direction:column;gap:12px">
       <div class="card">
         <div class="ctitle">Theme couleur</div>
         <div class="swatches">
@@ -321,7 +496,8 @@
         <div class="ctitle">Affichage</div>
         <div class="toggle-row"><span>Mode sombre</span><div class="toggle on" id="tgl-dark" onclick="toggleDark()"><div class="toggle-dot"></div></div></div>
         <div class="toggle-row"><span>Confettis aux paliers</span><div class="toggle on" id="tgl-conf" onclick="togPref('confetti','tgl-conf')"><div class="toggle-dot"></div></div></div>
-        <div class="toggle-row"><span>Animations</span><div class="toggle on" id="tgl-anim" onclick="togPref('anim','tgl-anim')"><div class="toggle-dot"></div></div></div>
+        <div class="toggle-row"><span>Animations d'entree</span><div class="toggle on" id="tgl-anim" onclick="togPref('anim','tgl-anim')"><div class="toggle-dot"></div></div></div>
+        <div class="toggle-row"><span>Rapport mensuel auto</span><div class="toggle on" id="tgl-report" onclick="togPref('report','tgl-report')"><div class="toggle-dot"></div></div></div>
       </div>
       <div class="card">
         <div class="ctitle">Objectif de patrimoine (EUR)</div>
@@ -329,7 +505,18 @@
           <input class="inp" type="number" id="goal-input" value="2000" step="100">
           <button class="btn" onclick="setGoal()">Definir</button>
         </div>
-        <div style="font-size:11px;color:var(--tx2);margin-top:8px">Prochain palier confettis : <span id="next-cf" style="color:var(--ac)">...</span></div>
+        <div style="font-size:11px;color:var(--tx2);margin-top:6px">Prochain palier confettis : <span id="next-cf" style="color:var(--ac)">...</span></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Securite — Code PIN</div>
+        <div class="toggle-row"><span>Code PIN actif</span><span class="badge bg">1803</span></div>
+        <div style="margin-top:10px">
+          <div class="field-lbl">Changer le code PIN</div>
+          <div style="display:flex;gap:8px;margin-top:6px">
+            <input class="inp" type="password" id="new-pin" placeholder="Nouveau code (4 chiffres)" maxlength="4" style="width:180px">
+            <button class="btn" onclick="changePin()">Changer</button>
+          </div>
+        </div>
       </div>
       <div class="card">
         <div class="ctitle">Export PDF</div>
@@ -344,6 +531,9 @@
   </div>
 </div>
 
+</div><!-- fin #app -->
+
 <script src="app.js"></script>
+<script src="news.js"></script>
 </body>
 </html>
