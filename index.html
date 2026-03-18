@@ -53,6 +53,7 @@
     <button class="tab" onclick="nav('p3',this)">Investir</button>
     <button class="tab" onclick="nav('p4',this)">Actualites</button>
     <button class="tab" onclick="nav('p5',this)">Parametres</button>
+    <button class="tab notif-tab" onclick="nav('p6',this)" id="splint-tab">Veille Splint</button>
   </div>
   <div class="topbar-r">
     <div class="mkt-wrap" id="mkt-wrap"></div>
@@ -531,9 +532,171 @@
   </div>
 </div>
 
+<!-- ══ PAGE 6 : VEILLE SPLINT ══ -->
+<div id="p6" class="page">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+    <div class="stitle">Veille <em>Splint Invest</em></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div id="splint-notif-count" style="display:none;background:var(--rd);color:#fff;border-radius:20px;padding:2px 10px;font-family:'Josefin Sans',sans-serif;font-weight:600;font-size:11px;letter-spacing:.04em"></div>
+      <button class="btn" onclick="showAddListing()">+ Analyser un listing</button>
+    </div>
+  </div>
+
+  <div class="stabs">
+    <button class="stab active" onclick="sub('sv-dash',this,'p6')">Tableau de bord</button>
+    <button class="stab" onclick="sub('sv-analyse',this,'p6')">Analyser listing</button>
+    <button class="stab" onclick="sub('sv-histo',this,'p6')">Historique</button>
+    <button class="stab" onclick="sub('sv-perf',this,'p6')">Performances</button>
+    <button class="stab" onclick="sub('sv-alertes',this,'p6')">Alertes</button>
+    <button class="stab" onclick="sub('sv-journal',this,'p6')">Journal</button>
+  </div>
+
+  <!-- TABLEAU DE BORD -->
+  <div id="sv-dash" class="subpage active">
+    <div class="g4" style="margin-bottom:14px" id="sv-kpis"></div>
+    <div class="g2" style="margin-bottom:14px">
+      <div class="card">
+        <div class="ctitle">Performance par categorie</div>
+        <div class="cw" style="height:200px"><canvas id="c-sv-cat"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Evolution du portefeuille Splint</div>
+        <div class="cw" style="height:200px"><canvas id="c-sv-evol"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ctitle">Positions actuelles</div>
+      <table><thead><tr><th>Actif</th><th>Categorie</th><th>Investi</th><th>Valeur</th><th>Gain</th><th>Perf.</th><th>Liquidite</th></tr></thead>
+      <tbody id="sv-positions"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ANALYSER UN LISTING -->
+  <div id="sv-analyse" class="subpage">
+    <div class="g2" style="margin-bottom:14px">
+      <div class="card">
+        <div class="ctitle">Nouveau listing a analyser</div>
+        <div class="g2" style="margin-bottom:10px">
+          <div><div class="field-lbl">Nom de l'actif</div><input class="inp" type="text" id="sv-name" placeholder="ex: Messi 2023 Topps PSA 10"></div>
+          <div><div class="field-lbl">Categorie</div>
+            <select class="inp" id="sv-cat">
+              <option>Cartes sport</option><option>Cartes Pokemon</option><option>Art</option>
+              <option>Sacs a main</option><option>Montres</option><option>Autre</option>
+            </select>
+          </div>
+          <div><div class="field-lbl">Prix total (EUR)</div><input class="inp" type="number" id="sv-price" placeholder="5000"></div>
+          <div><div class="field-lbl">Nb de splints</div><input class="inp" type="number" id="sv-splints" placeholder="10"></div>
+          <div><div class="field-lbl">Joueur / Artiste / Marque</div><input class="inp" type="text" id="sv-subject" placeholder="ex: Lionel Messi"></div>
+          <div><div class="field-lbl">Annee / Edition</div><input class="inp" type="text" id="sv-year" placeholder="ex: 2023 Topps Chrome"></div>
+          <div><div class="field-lbl">Grade PSA (si applicable)</div><input class="inp" type="text" id="sv-grade" placeholder="ex: PSA 10"></div>
+          <div style="display:flex;align-items:flex-end"><button class="btn" style="width:100%" onclick="analyseListing()">Analyser →</button></div>
+        </div>
+      </div>
+      <div class="card" id="sv-result-card">
+        <div class="ctitle">Resultat de l'analyse</div>
+        <div id="sv-result" style="text-align:center;color:var(--tx3);padding:40px 20px;font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:12px;letter-spacing:.04em">Entre les infos du listing et clique Analyser</div>
+      </div>
+    </div>
+    <div class="card" id="sv-comparables" style="display:none">
+      <div class="ctitle">Prix comparables trouves</div>
+      <div id="sv-comps-content"></div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <div class="ctitle">Recherches rapides</div>
+      <div id="sv-quick-links" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px"></div>
+    </div>
+  </div>
+
+  <!-- HISTORIQUE -->
+  <div id="sv-histo" class="subpage">
+    <div class="card" style="margin-bottom:14px">
+      <div class="ctitle">Ajouter une analyse passee</div>
+      <div class="g4" style="margin-bottom:10px">
+        <div><div class="field-lbl">Nom</div><input class="inp" type="text" id="sh-name" placeholder="Nom de l'actif"></div>
+        <div><div class="field-lbl">Categorie</div><select class="inp" id="sh-cat"><option>Cartes sport</option><option>Cartes Pokemon</option><option>Art</option><option>Sacs a main</option><option>Autre</option></select></div>
+        <div><div class="field-lbl">Investi (EUR)</div><input class="inp" type="number" id="sh-inv" placeholder="50"></div>
+        <div><div class="field-lbl">Valeur actuelle (EUR)</div><input class="inp" type="number" id="sh-val" placeholder="55"></div>
+        <div><div class="field-lbl">Date d'achat</div><input class="inp" type="date" id="sh-date"></div>
+        <div><div class="field-lbl">Score donne (1-10)</div><input class="inp" type="number" id="sh-score" min="1" max="10" placeholder="7"></div>
+        <div><div class="field-lbl">Decision</div><select class="inp" id="sh-dec"><option>Investi</option><option>Refuse</option><option>En attente</option></select></div>
+        <div style="display:flex;align-items:flex-end"><button class="btn" style="width:100%" onclick="addHistorique()">+ Ajouter</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ctitle">Toutes les analyses</div>
+      <table><thead><tr><th>Actif</th><th>Cat.</th><th>Investi</th><th>Valeur</th><th>Perf.</th><th>Score</th><th>Decision</th><th></th></tr></thead>
+      <tbody id="sh-rows"><tr><td colspan="8" class="loading-cell">Aucune analyse enregistree</td></tr></tbody></table>
+    </div>
+  </div>
+
+  <!-- PERFORMANCES -->
+  <div id="sv-perf" class="subpage">
+    <div class="g3" style="margin-bottom:14px" id="sv-perf-kpis"></div>
+    <div class="g2">
+      <div class="card">
+        <div class="ctitle">Rendement annualise par categorie</div>
+        <div id="sv-perf-cats"></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Meilleurs et pires investissements</div>
+        <div id="sv-perf-best"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <div class="ctitle">Simulateur de rendement futur</div>
+      <div class="ibox" id="sv-perf-sim">Base sur tes performances historiques, si tu investis 100 EUR/mois sur Splint...</div>
+    </div>
+  </div>
+
+  <!-- ALERTES -->
+  <div id="sv-alertes" class="subpage">
+    <div class="g2" style="margin-bottom:14px">
+      <div class="card">
+        <div class="ctitle">Surveillance automatique</div>
+        <div class="toggle-row"><span>Surveiller Instagram Splint</span><div class="toggle on" id="tgl-insta" onclick="togSplint('insta','tgl-insta')"><div class="toggle-dot"></div></div></div>
+        <div class="toggle-row"><span>Surveiller LinkedIn Splint</span><div class="toggle on" id="tgl-linkedin" onclick="togSplint('linkedin','tgl-linkedin')"><div class="toggle-dot"></div></div></div>
+        <div class="toggle-row"><span>Alertes nouvelles ventes eBay</span><div class="toggle on" id="tgl-ebay" onclick="togSplint('ebay','tgl-ebay')"><div class="toggle-dot"></div></div></div>
+        <div class="ibox" style="margin-top:10px">Le site verifie toutes les heures et affiche une notification dans la cloche en haut quand quelque chose de nouveau est detecte.</div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Ajouter une alerte manuelle</div>
+        <div style="margin-bottom:10px"><div class="field-lbl">Type d'actif a surveiller</div><input class="inp" type="text" id="al-name" placeholder="ex: cartes Mbappe PSA 10"></div>
+        <div style="margin-bottom:10px"><div class="field-lbl">Prix max acceptable (EUR/splint)</div><input class="inp" type="number" id="al-price" placeholder="50"></div>
+        <button class="btn" onclick="addAlerte()">+ Ajouter alerte</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ctitle">Alertes actives</div>
+      <div id="al-list"><div class="loading-cell" style="padding:16px">Aucune alerte configuree</div></div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <div class="ctitle">Notifications recentes</div>
+      <div id="notif-list"><div class="loading-cell" style="padding:16px">Aucune notification</div></div>
+    </div>
+  </div>
+
+  <!-- JOURNAL SPLINT -->
+  <div id="sv-journal" class="subpage">
+    <div class="card" style="margin-bottom:14px">
+      <div class="ctitle">Nouvelle observation</div>
+      <div class="g3" style="margin-bottom:10px">
+        <div><div class="field-lbl">Date</div><input class="inp" type="date" id="sj-date"></div>
+        <div><div class="field-lbl">Actif concerne</div><input class="inp" type="text" id="sj-asset" placeholder="ex: Listing Zidane"></div>
+        <div><div class="field-lbl">Type</div><select class="inp" id="sj-type"><option>Opportunite</option><option>Analyse</option><option>Tendance marche</option><option>Reflexion</option></select></div>
+      </div>
+      <div style="margin-bottom:10px"><div class="field-lbl">Observation</div><textarea class="inp" id="sj-note" rows="2" placeholder="Tes observations sur le marche, une tendance, une opportunite..." style="resize:none"></textarea></div>
+      <button class="btn" onclick="addSplintJournal()">+ Enregistrer</button>
+    </div>
+    <div class="card"><div class="ctitle">Journal de veille</div><div id="sj-list"><div class="loading-cell" style="padding:20px">Aucune entree</div></div></div>
+  </div>
+
+</div>
+
 </div><!-- fin #app -->
 
 <script src="app.js"></script>
+<script src="news.js"></script>
+<script src="splint.js"></script>
 <script src="news.js"></script>
 </body>
 </html>

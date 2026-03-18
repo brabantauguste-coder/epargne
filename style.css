@@ -306,3 +306,41 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   .page{display:block !important;padding:12px}
   .card{break-inside:avoid}
 }
+
+/* ══ SPLINT VEILLE ══ */
+.notif-tab{position:relative}
+.notif-badge{position:absolute;top:-4px;right:-4px;width:8px;height:8px;border-radius:50%;background:var(--rd);animation:pulse 2s infinite}
+.sv-score{font-family:'Josefin Sans',sans-serif;font-weight:800;font-size:48px;letter-spacing:-2px;line-height:1;margin-bottom:4px}
+.sv-score.excellent{color:var(--gn)}
+.sv-score.bon{color:#5ddfb8}
+.sv-score.moyen{color:var(--am)}
+.sv-score.mauvais{color:var(--rd)}
+.sv-verdict{font-family:'Josefin Sans',sans-serif;font-weight:600;font-size:14px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px}
+.sv-criterion{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd3)}
+.sv-criterion:last-child{border-bottom:none}
+.sv-crit-name{font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:.04em;color:var(--tx2)}
+.sv-crit-bar{flex:1;height:4px;background:var(--bg4);border-radius:2px;margin:0 12px;overflow:hidden}
+.sv-crit-fill{height:100%;border-radius:2px;transition:width 1s ease}
+.sv-crit-val{font-family:'Josefin Sans',sans-serif;font-weight:600;font-size:11px;width:30px;text-align:right}
+.sv-comp-item{padding:10px 0;border-bottom:1px solid var(--bd3);display:flex;justify-content:space-between;align-items:center}
+.sv-comp-item:last-child{border-bottom:none}
+.sv-comp-title{font-family:'Josefin Sans',sans-serif;font-size:12px;color:var(--tx);margin-bottom:2px}
+.sv-comp-meta{font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:10px;color:var(--tx3);letter-spacing:.03em}
+.sv-comp-price{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:14px;color:var(--ac)}
+.quick-search-btn{background:var(--bg3);border:1px solid var(--bd2);border-radius:8px;padding:8px 14px;font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:11px;color:var(--tx2);cursor:pointer;transition:all .2s;text-decoration:none;display:flex;align-items:center;gap:6px;letter-spacing:.03em}
+.quick-search-btn:hover{color:var(--tx);border-color:var(--ac)}
+.alerte-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--bd3)}
+.alerte-item:last-child{border-bottom:none}
+.alerte-name{font-family:'Josefin Sans',sans-serif;font-size:12px;color:var(--tx)}
+.alerte-price{font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:11px;color:var(--tx3)}
+.notif-item{background:var(--bg3);border-radius:8px;padding:10px 12px;margin-bottom:6px;border-left:2px solid var(--ac)}
+.notif-time{font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:9px;color:var(--tx3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+.notif-text{font-family:'Josefin Sans',sans-serif;font-size:12px;color:var(--tx);line-height:1.5}
+.sj-entry{background:var(--bg3);border-left:2px solid var(--ac);border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:8px}
+.sj-meta{font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:9px;color:var(--tx3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+.sj-asset{font-family:'Josefin Sans',sans-serif;font-weight:600;font-size:11px;color:var(--ac);margin-bottom:3px}
+.sj-note{font-size:12px;color:var(--tx);line-height:1.5}
+.liq-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;font-family:'Josefin Sans',sans-serif;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.liq-haute{background:rgba(74,222,128,.12);color:var(--gn)}
+.liq-moy{background:rgba(255,209,102,.12);color:var(--am)}
+.liq-faible{background:rgba(248,113,113,.12);color:var(--rd)}
